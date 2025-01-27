@@ -1,5 +1,4 @@
 import pandas as pd
-import lazop
 import json
 
 from dotenv import load_dotenv

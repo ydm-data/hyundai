@@ -3,18 +3,19 @@ import json
 
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, date
-
-from google.cloud import bigquery
-from googleapiclient.discovery import build
+import pytz
+import logging
 from flask import Flask, request
 import os
 
-# from connector_FB import FB_Connector
-# from connector_LINE import LINE_Connector
+from google.cloud import bigquery
+from googleapiclient.discovery import build
+from google.oauth2.service_account import Credentials
+
+from connector_FB import FB_Connector
 from connector_GG import GG_Connector
 from connector_BQ import BQ_Connector
 from connector_TT import TT_connector
-from data_connector import Connector
 from helper_function import h_function
 
 from google.ads.googleads.client import GoogleAdsClient
@@ -26,12 +27,12 @@ app = Flask(__name__)
 @app.route('/update_tiktok_daily', methods=['POST'])
 def update_tiktok_daily():
     service = h_function.get_service()
-    advertiser_ids_list = h_function.get_account(service,"tiktok advertiesr id!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"Advertiser ID")
+    advertiser_ids_list = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Tiktok")
     metrics_list = TT_connector.get_main_metrics()
     data = TT_connector.get_data(advertiser_ids_list,metrics_list,14)
     data = TT_connector.convert_main_data(data)    
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)   
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_main_temp")
     BQ_Connector.load_data(client,"rda_analytics_temp","media_tiktok_main_temp",data)
@@ -41,14 +42,14 @@ def update_tiktok_daily():
     BQ_Connector.load_data(client, "rda_analytics", "media_tiktok_main", data)
     
     msg = "🎶 Media: <b>Tiktok Main</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Tiktok Completed'}), 200
     
     
 @app.route('/update_tiktok_daily_event', methods=['POST'])
 def update_tiktok_daily_event():
     service = h_function.get_service()
-    advertiser_ids_list = h_function.get_account(service,"tiktok advertiesr id!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"Advertiser ID")
+    advertiser_ids_list = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Tiktok")
     metrics_list = TT_connector.get_event_metrics()
     data = TT_connector.get_data(advertiser_ids_list,metrics_list,14)
     data = TT_connector.convert_event_data(data)
@@ -56,7 +57,7 @@ def update_tiktok_daily_event():
     id_columns = ['currency',"campaign_id",'campaign_name',"ad_id",'ad_name','adgroup_id','adgroup_name','advertiser_id','advertiser_name','timezone',"stat_time_day"]
     data = BQ_Connector.pivot_to_nested(data, id_columns,"event")
 
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_event_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_tiktok_event_temp",data)
@@ -65,14 +66,14 @@ def update_tiktok_daily_event():
     BQ_Connector.load_data(client, "rda_analytics", "media_tiktok_event", data)
 
     msg = "🎶 Media: <b>Tiktok Event</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Tiktok Event Completed'}), 200
 
 
 @app.route('/update_tiktok_daily_pageevent', methods=['POST'])
 def update_tiktok_daily_pageevent():
     service = h_function.get_service()
-    advertiser_ids_list = h_function.get_account(service,"tiktok advertiesr id!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"Advertiser ID")
+    advertiser_ids_list = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Tiktok")
     metrics_list = TT_connector.get_pageevent_metrics()
     data = TT_connector.get_data(advertiser_ids_list, metrics_list,14)
     data = TT_connector.convert_pageevent_data(data)
@@ -80,7 +81,7 @@ def update_tiktok_daily_pageevent():
     id_columns = ['currency',"campaign_id",'campaign_name',"ad_id",'ad_name','adgroup_id','adgroup_name','advertiser_id','advertiser_name','timezone',"stat_time_day"]
     data = BQ_Connector.pivot_to_nested(data, id_columns,"pageevent")
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)   
     BQ_Connector.delete_data(client, "rda_analytics_temp","media_tiktok_pageevent_temp")
     BQ_Connector.load_data(client,"rda_analytics_temp","media_tiktok_pageevent_temp",data)
@@ -89,21 +90,21 @@ def update_tiktok_daily_pageevent():
     BQ_Connector.load_data(client, "rda_analytics", "media_tiktok_pageevent", data)
 
     msg = "🎶 Media: <b>Tiktok Page Event</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Tiktok Page Event Completed'}), 200
 
 
 @app.route('/update_tiktok_daily_shopads', methods=['POST'])
 def update_tiktok_daily_shopads():
     service = h_function.get_service()
-    advertiser_ids_list = h_function.get_account(service,"tiktok advertiesr id!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"Advertiser ID")
+    advertiser_ids_list = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Tiktok")
     metrics_list = TT_connector.get_shopads_metrics()
     data = TT_connector.get_data(advertiser_ids_list,metrics_list,14)
     data = TT_connector.convert_shopads_data(data)
     id_columns = ['currency',"campaign_id",'campaign_name',"ad_id",'ad_name','adgroup_id','adgroup_name','advertiser_id','advertiser_name','timezone',"stat_time_day"]
     data = BQ_Connector.pivot_to_nested(data, id_columns,"shopads")
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)   
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_shop_ads_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_tiktok_shop_ads_temp",data)
@@ -112,14 +113,14 @@ def update_tiktok_daily_shopads():
     BQ_Connector.load_data(client, "rda_analytics", "media_tiktok_shop_ads", data)
 
     msg = "🎶 Media: <b>Tiktok Shop Ads</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Tiktok ShopAds Completed'}), 200
         
 
 @app.route('/update_tiktok_lifetime_ad', methods=['POST'])
 def update_tiktok_lifetime_ad():
     service = h_function.get_service()
-    advertiser_ids_list = h_function.get_account(service,"tiktok advertiesr id!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"Advertiser ID")
+    advertiser_ids_list = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Tiktok")
     metrics_list = TT_connector.get_main_metrics_lifetime_ad()
     
     data_level = 'AUCTION_AD'
@@ -128,7 +129,7 @@ def update_tiktok_lifetime_ad():
     data = TT_connector.convert_main_data_lifetime(data)  
     data['update_date'] = datetime.today()  
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)   
     
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_lifetime_ad_temp")
@@ -138,14 +139,14 @@ def update_tiktok_lifetime_ad():
     BQ_Connector.load_data(client,"rda_analytics","media_tiktok_lifetime_ad",data)
     
     msg = "⌛🎶 Media: <b>Tiktok</b> Lifetime (Ad Level) Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Tiktok Ad Lifetime Completed'}), 200
     
     
 @app.route('/update_tiktok_lifetime_adgroup', methods=['POST'])
 def update_tiktok_lifetime_adgroup():
     service = h_function.get_service()
-    advertiser_ids_list = h_function.get_account(service,"tiktok advertiesr id!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"Advertiser ID")
+    advertiser_ids_list = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Tiktok")
     metrics_list = TT_connector.get_main_metrics_adgroup()
     
     data_level = 'AUCTION_ADGROUP'
@@ -154,7 +155,7 @@ def update_tiktok_lifetime_adgroup():
     data = TT_connector.convert_main_data_lifetime(data)  
     data['update_date'] = datetime.today()  
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_lifetime_adgroup_temp")
     BQ_Connector.load_data(client,"rda_analytics_temp","media_tiktok_lifetime_adgroup_temp",data) 
@@ -163,14 +164,14 @@ def update_tiktok_lifetime_adgroup():
     BQ_Connector.load_data(client,"rda_analytics","media_tiktok_lifetime_adgroup",data)
     
     msg = "⌛🎶 Media: <b>Tiktok</b> Lifetime (AdGroup Level) Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Tiktok Adgroup Lifetime Completed'}), 200
 
     
 @app.route('/update_tiktok_lifetime_campaign', methods=['POST'])
 def update_tiktok_lifetime_campaign():
     service = h_function.get_service()
-    advertiser_ids_list = h_function.get_account(service,"tiktok advertiesr id!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"Advertiser ID")
+    advertiser_ids_list = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Tiktok")
     metrics_list = TT_connector.get_main_metrics_campaign()
     
     data_level = 'AUCTION_CAMPAIGN'
@@ -179,7 +180,7 @@ def update_tiktok_lifetime_campaign():
     data = TT_connector.convert_main_data_lifetime(data)  
     data['update_date'] = datetime.today()  
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)  
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_lifetime_campaign_temp")
     BQ_Connector.load_data(client,"rda_analytics_temp","media_tiktok_lifetime_campaign_temp",data) 
@@ -188,14 +189,14 @@ def update_tiktok_lifetime_campaign():
     BQ_Connector.load_data(client,"rda_analytics","media_tiktok_lifetime_campaign",data)
     
     msg = "⌛🎶 Media: <b>Tiktok</b> Lifetime (Campaign Level) Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Tiktok Campaign Lifetime Completed'}), 200
 
     
 @app.route('/update_tiktok_lifetime_advertiser', methods=['POST'])
 def update_tiktok_lifetime_advertiser(): 
     service = h_function.get_service()
-    advertiser_ids_list = h_function.get_account(service,"tiktok advertiesr id!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"Advertiser ID")
+    advertiser_ids_list = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Tiktok")
     metrics_list = TT_connector.get_main_metrics_advertiser()
     
     data_level = 'AUCTION_ADVERTISER'
@@ -204,7 +205,7 @@ def update_tiktok_lifetime_advertiser():
     data = TT_connector.convert_main_data_advertiser_level(data)  
     data['update_date'] = datetime.today()  
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)   
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_lifetime_advertiser_temp")
     BQ_Connector.load_data(client,"rda_analytics_temp","media_tiktok_lifetime_advertiser_temp",data) 
@@ -213,7 +214,7 @@ def update_tiktok_lifetime_advertiser():
     BQ_Connector.load_data(client,"rda_analytics","media_tiktok_lifetime_advertiser",data)
     
     msg = "⌛🎶 Media: <b>Tiktok</b> Lifetime (Advertiser Level) Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Tiktok Advertiser Lifetime Completed'}), 200
 
 
@@ -307,11 +308,11 @@ def update_google_adsbasicstats():
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_AdBasicStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_AdBasicStats_temp",df)
     condition = "ON (ori.segments_date = temp.segments_date AND ori.customer_id = temp.customer_id AND ori.ad_group_ad_ad_id = temp.ad_group_ad_ad_id) "
-    Connector.delete_when_match(client,"rda_analytics","media_google_AdBasicStats","rda_analytics_temp","media_google_AdBasicStats_temp",condition)
-    Connector.load_data(client,"rda_analytics","media_google_AdBasicStats",df)
+    BQ_Connector.delete_when_match(client,"rda_analytics","media_google_AdBasicStats","rda_analytics_temp","media_google_AdBasicStats_temp",condition)
+    BQ_Connector.load_data(client,"rda_analytics","media_google_AdBasicStats",df)
 
     msg = "🌳 Media: <b>Google AdsBasicStats</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Google AdsBasicStats Completed'}), 200
 
 
@@ -341,11 +342,11 @@ def update_google_adgroupbasicstats():
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_AdGroupBasicStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_AdGroupBasicStats_temp",df)
     condition = "ON (ori.segments_date = temp.segments_date AND ori.customer_id = temp.customer_id AND ori.ad_group_id = temp.ad_group_id) "
-    Connector.delete_when_match(client,"rda_analytics","media_google_AdGroupBasicStats","rda_analytics_temp","media_google_AdGroupBasicStats_temp",condition)
-    Connector.load_data(client,"rda_analytics","media_google_AdGroupBasicStats",df)
+    BQ_Connector.delete_when_match(client,"rda_analytics","media_google_AdGroupBasicStats","rda_analytics_temp","media_google_AdGroupBasicStats_temp",condition)
+    BQ_Connector.load_data(client,"rda_analytics","media_google_AdGroupBasicStats",df)
 
     msg = "🌳 Media: <b>Google AdGroupBasicStats</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Google AdGroupBasicStats Completed'}), 200
 
 
@@ -375,11 +376,11 @@ def update_google_campaignbasicstats():
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_CampaignBasicStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_CampaignBasicStats_temp",df)
     condition = "ON (ori.segments_date = temp.segments_date AND ori.customer_id = temp.customer_id AND ori.campaign_id = temp.campaign_id) "
-    Connector.delete_when_match(client,"rda_analytics","media_google_CampaignBasicStats","rda_analytics_temp","media_google_CampaignBasicStats_temp",condition)
-    Connector.load_data(client,"rda_analytics","media_google_CampaignBasicStats",df)
+    BQ_Connector.delete_when_match(client,"rda_analytics","media_google_CampaignBasicStats","rda_analytics_temp","media_google_CampaignBasicStats_temp",condition)
+    BQ_Connector.load_data(client,"rda_analytics","media_google_CampaignBasicStats",df)
 
     msg = "🌳 Media: <b>Google CampaignBasicStats</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Google CampaignBasicStats Completed'}), 200
 
 
@@ -409,11 +410,11 @@ def update_google_keywordbasicstats():
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_KeywordBasicStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_KeywordBasicStats_temp",df)
     condition = "ON (ori.segments_date = temp.segments_date AND ori.customer_id = temp.customer_id AND ori.ad_group_criterion_criterion_id = temp.ad_group_criterion_criterion_id AND ori.campaign_id = temp.campaign_id) "
-    Connector.delete_when_match(client,"rda_analytics","media_google_KeywordBasicStats","rda_analytics_temp","media_google_KeywordBasicStats_temp",condition)
-    Connector.load_data(client,"rda_analytics","media_google_KeywordBasicStats",df)
+    BQ_Connector.delete_when_match(client,"rda_analytics","media_google_KeywordBasicStats","rda_analytics_temp","media_google_KeywordBasicStats_temp",condition)
+    BQ_Connector.load_data(client,"rda_analytics","media_google_KeywordBasicStats",df)
 
     msg = "🌳 Media: <b>Google KeywordBasicStats</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Google KeywordBasicStats Completed'}), 200
 
 @app.route('/update_google_videobasicstats', methods=['POST'])
@@ -441,11 +442,11 @@ def update_google_videobasicstats():
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_VideoBasicStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_VideoBasicStats_temp",df)
     condition = "ON (ori.segments_date = temp.segments_date AND ori.customer_id = temp.customer_id AND ori.ad_group_ad_ad_id = temp.ad_group_ad_ad_id AND ori.video_id = temp.video_id) "
-    Connector.delete_when_match(client,"rda_analytics","media_google_VideoBasicStats","rda_analytics_temp","media_google_VideoBasicStats_temp",condition)
-    Connector.load_data(client,"rda_analytics","media_google_VideoBasicStats",df)
+    BQ_Connector.delete_when_match(client,"rda_analytics","media_google_VideoBasicStats","rda_analytics_temp","media_google_VideoBasicStats_temp",condition)
+    BQ_Connector.load_data(client,"rda_analytics","media_google_VideoBasicStats",df)
 
     msg = "🌳 Media: <b>Google VideoBasicStats</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Google VideoBasicStats Completed'}), 200
 
 
@@ -482,14 +483,14 @@ def update_google_videoconversionstats():
         BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_VideoConversionStats_temp")
         BQ_Connector.load_data(client, "rda_analytics_temp","media_google_VideoConversionStats_temp",df)
         condition = "ON (ori.segments_date = temp.segments_date AND ori.customer_id = temp.customer_id AND ori.ad_group_ad_ad_id = temp.ad_group_ad_ad_id AND ori.video_id = temp.video_id) "
-        Connector.delete_when_match(client,"rda_analytics","media_google_VideoConversionStats","rda_analytics_temp","media_google_VideoConversionStats_temp",condition)
-        Connector.load_data(client,"rda_analytics","media_google_VideoConversionStats",df)
+        BQ_Connector.delete_when_match(client,"rda_analytics","media_google_VideoConversionStats","rda_analytics_temp","media_google_VideoConversionStats_temp",condition)
+        BQ_Connector.load_data(client,"rda_analytics","media_google_VideoConversionStats",df)
 
         msg = "🌳 Media: <b>Google VideoConversionStats</b> Executed Successfully on 📅 "
     else:
         msg = "🌳 Media: <b>Google VideoConversionStats</b> No new records for 📅 "
     
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Google VideoConversionStats Completed'}), 200
 
 
@@ -524,11 +525,11 @@ def update_google_videononclickstats():
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_VideoNonClickStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_VideoNonClickStats_temp",df)
     condition = "ON (ori.segments_date = temp.segments_date AND ori.customer_id = temp.customer_id AND ori.ad_group_ad_ad_id = temp.ad_group_ad_ad_id AND ori.video_id = temp.video_id) "
-    Connector.delete_when_match(client,"rda_analytics","media_google_VideoNonClickStats","rda_analytics_temp","media_google_VideoNonClickStats_temp",condition)
-    Connector.load_data(client,"rda_analytics","media_google_VideoNonClickStats",df)
+    BQ_Connector.delete_when_match(client,"rda_analytics","media_google_VideoNonClickStats","rda_analytics_temp","media_google_VideoNonClickStats_temp",condition)
+    BQ_Connector.load_data(client,"rda_analytics","media_google_VideoNonClickStats",df)
 
     msg = "🌳 Media: <b>Google VideoNonClickStats</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Google VideoNonClickStats Completed'}), 200
 
 
@@ -563,11 +564,11 @@ def update_google_adcrossconversionstats():
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_AdCrossDeviceConversionStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_AdCrossDeviceConversionStats_temp",df)
     condition = "ON (ori.segments_date = temp.segments_date AND ori.customer_id = temp.customer_id AND ori.ad_group_ad_ad_id = temp.ad_group_ad_ad_id AND ori.segments_click_type = temp.segments_click_type) "
-    Connector.delete_when_match(client,"rda_analytics","media_google_AdCrossDeviceConversionStats","rda_analytics_temp","media_google_AdCrossDeviceConversionStats_temp",condition)
-    Connector.load_data(client,"rda_analytics","media_google_AdCrossDeviceConversionStats",df)
+    BQ_Connector.delete_when_match(client,"rda_analytics","media_google_AdCrossDeviceConversionStats","rda_analytics_temp","media_google_AdCrossDeviceConversionStats_temp",condition)
+    BQ_Connector.load_data(client,"rda_analytics","media_google_AdCrossDeviceConversionStats",df)
 
     msg = "🌳 Media: <b>Google AdCrossDeviceConversionStats</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Google AdCrossDeviceConversionStats Completed'}), 200
 
 @app.route('/update_google_adgroupcrossconversionstats', methods=['POST'])
@@ -601,11 +602,11 @@ def update_google_adgroupcrossconversionstats():
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_AdGroupCrossDeviceConversionStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_AdGroupCrossDeviceConversionStats_temp",df)
     condition = "ON (ori.segments_date = temp.segments_date AND ori.customer_id = temp.customer_id AND ori.ad_group_id = temp.ad_group_id AND ori.segments_click_type = temp.segments_click_type) "
-    Connector.delete_when_match(client,"rda_analytics","media_google_AdGroupCrossDeviceConversionStats","rda_analytics_temp","media_google_AdGroupCrossDeviceConversionStats_temp",condition)
-    Connector.load_data(client,"rda_analytics","media_google_AdGroupCrossDeviceConversionStats",df)
+    BQ_Connector.delete_when_match(client,"rda_analytics","media_google_AdGroupCrossDeviceConversionStats","rda_analytics_temp","media_google_AdGroupCrossDeviceConversionStats_temp",condition)
+    BQ_Connector.load_data(client,"rda_analytics","media_google_AdGroupCrossDeviceConversionStats",df)
 
     msg = "🌳 Media: <b>Google AdGroupCrossDeviceConversionStats</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Google AdGroupCrossDeviceConversionStats Completed'}), 200
 
 
@@ -640,11 +641,11 @@ def update_google_campaigncrossconversionstats():
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_CampaignCrossDeviceConversionStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_CampaignCrossDeviceConversionStats_temp",df)
     condition = "ON (ori.segments_date = temp.segments_date AND ori.customer_id = temp.customer_id AND ori.campaign_id = temp.campaign_id) "
-    Connector.delete_when_match(client,"rda_analytics","media_google_CampaignCrossDeviceConversionStats","rda_analytics_temp","media_google_CampaignCrossDeviceConversionStats_temp",condition)
-    Connector.load_data(client,"rda_analytics","media_google_CampaignCrossDeviceConversionStats",df)
+    BQ_Connector.delete_when_match(client,"rda_analytics","media_google_CampaignCrossDeviceConversionStats","rda_analytics_temp","media_google_CampaignCrossDeviceConversionStats_temp",condition)
+    BQ_Connector.load_data(client,"rda_analytics","media_google_CampaignCrossDeviceConversionStats",df)
 
     msg = "🌳 Media: <b>Google CampaignCrossDeviceConversionStats</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Google CampaignCrossDeviceConversionStats Completed'}), 200
 
 @app.route('/update_google_keywordcrossconversionstats', methods=['POST'])
@@ -678,11 +679,11 @@ def update_google_keywordcrossconversionstats():
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_KeywordCrossDeviceConversionStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_KeywordCrossDeviceConversionStats_temp",df)
     condition = "ON (ori.segments_date = temp.segments_date AND ori.customer_id = temp.customer_id AND ori.ad_group_criterion_criterion_id = temp.ad_group_criterion_criterion_id) "
-    Connector.delete_when_match(client,"rda_analytics","media_google_KeywordCrossDeviceConversionStats","rda_analytics_temp","media_google_KeywordCrossDeviceConversionStats_temp",condition)
-    Connector.load_data(client,"rda_analytics","media_google_KeywordCrossDeviceConversionStats",df)
+    BQ_Connector.delete_when_match(client,"rda_analytics","media_google_KeywordCrossDeviceConversionStats","rda_analytics_temp","media_google_KeywordCrossDeviceConversionStats_temp",condition)
+    BQ_Connector.load_data(client,"rda_analytics","media_google_KeywordCrossDeviceConversionStats",df)
 
     msg = "🌳 Media: <b>Google KeywordCrossDeviceConversionStats</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Google KeywordCrossDeviceConversionStats Completed'}), 200
 
 
@@ -705,7 +706,7 @@ def update_google_adgrouplabel():
     BQ_Connector.load_data(client, "rda_analytics","media_google_AdGroupLabel",df)
 
     msg = "🌳 Media: <b>Google AdGroupLabel</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Google AdGroupLabel Completed'}), 200
 
 """" FB """
@@ -728,11 +729,11 @@ def update_fb_daily():
     BQ_Connector.delete_data(client,'rda_analytics_temp', 'media_facebook_main_temp')
     BQ_Connector.load_data(client, 'rda_analytics_temp', 'media_facebook_main_temp', ads_data)
     condition = "ON (ori.date_start = temp.date_start AND ori.account_id = temp.account_id AND ori.ad_id = temp.ad_id) "
-    Connector.delete_when_match(client,"rda_analytics","media_facebook_main","rda_analytics_temp","media_facebook_main_temp",condition)
-    Connector.load_data(client,"rda_analytics","media_facebook_main",ads_data)
+    BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_main","rda_analytics_temp","media_facebook_main_temp",condition)
+    BQ_Connector.load_data(client,"rda_analytics","media_facebook_main",ads_data)
 
     msg = f"🔷 Media: <b>Facebook {round}</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Facebook Main Completed'}), 200
 
 
@@ -765,11 +766,11 @@ def update_fb_daily_action():
     BQ_Connector.delete_data(client,'rda_analytics_temp', 'media_facebook_action_temp')
     BQ_Connector.load_data(client, 'rda_analytics_temp', 'media_facebook_action_temp', ads_data)
     condition = "ON (ori.date_start = temp.date_start AND ori.account_id = temp.account_id AND ori.ad_id = temp.ad_id) "
-    Connector.delete_when_match(client,"rda_analytics","media_facebook_action","rda_analytics_temp","media_facebook_action_temp",condition)
-    Connector.load_data(client,"rda_analytics","media_facebook_action",ads_data)
+    BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_action","rda_analytics_temp","media_facebook_action_temp",condition)
+    BQ_Connector.load_data(client,"rda_analytics","media_facebook_action",ads_data)
 
     msg = f"🔷 Media: <b>Facebook Actions</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Facebook Actions Completed'}), 200
 
 
@@ -798,11 +799,11 @@ def update_fb_daily_catalog_segments():
     BQ_Connector.delete_data(client,'rda_analytics_temp', 'media_facebook_catalog_segment_temp')
     BQ_Connector.load_data(client, 'rda_analytics_temp', 'media_facebook_catalog_segment_temp', ads_data)
     condition = "ON (ori.date_start = temp.date_start AND ori.account_id = temp.account_id AND ori.ad_id = temp.ad_id) "
-    Connector.delete_when_match(client,"rda_analytics","media_facebook_catalog_segment","rda_analytics_temp","media_facebook_catalog_segment_temp",condition)
-    Connector.load_data(client,"rda_analytics","media_facebook_catalog_segment",ads_data)
+    BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_catalog_segment","rda_analytics_temp","media_facebook_catalog_segment_temp",condition)
+    BQ_Connector.load_data(client,"rda_analytics","media_facebook_catalog_segment",ads_data)
 
     msg = f"🔷 Media: <b>Facebook Catalog Segment</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Facebook Catalog Segment Completed'}), 200
 
 
@@ -826,7 +827,7 @@ def update_fb_page_cta_engagement():
     BQ_Connector.load_data(client,"rda_analytics","media_facebook_page_insight",pivoted_df)
         
     msg = f"🔷🔖 Content: <b>Facebook Page Insight</b> Executed Successfully on 📅 "
-    Connector.send_gg_chat_noti(msg)
+    h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': msg}), 200
 
 
@@ -865,18 +866,11 @@ def check_updated_media_data():
     msg4 = f"🔷 <b>Facebook</b> \n FB Main: 📅{fb_main}\n FB Actions: 📅{fb_actions}\n FB Catalog Segment: 📅{fb_catalog}"
     msg5 = f"💬 <b>Line</b> \n Line: 📅{line_main}"
     
-    Connector.send_gg_chat_noti_with_divider(msg1,msg2,msg3,msg4,msg5)
+    h_function.send_gg_chat_noti_with_divider(msg1,msg2,msg3,msg4,msg5)
     return json.dumps({'success': 'Check Media Recent Date'}), 200
 
 @app.route('/update_google_search_console', methods=['POST'])
 def update_google_search_console():
-    import pandas as pd
-    from google.oauth2.service_account import Credentials
-    from googleapiclient.discovery import build
-    from google.cloud import bigquery
-    from datetime import datetime, timedelta
-    import pytz
-    import logging
     
     try:
         scopes=['https://www.googleapis.com/auth/webmasters.readonly']

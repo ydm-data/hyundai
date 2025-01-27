@@ -45,7 +45,7 @@ class h_function:
     def send_gg_chat_noti(msg):
         chat_key = os.environ.get("GG_CHAT_KEY")
         chat_token = os.environ.get("GG_CHAT_TOKEN")
-        webhook_url = f"https://chat.googleapis.com/v1/spaces/AAAAlqqeJy0/messages?key={chat_key}&token={chat_token}"
+        webhook_url = f"https://chat.googleapis.com/v1/spaces/AAAAcP4fG9Q/messages?key={chat_key}&token={chat_token}"
         message = {
             "cards_v2" : [{ 
                 "card": {
@@ -69,7 +69,7 @@ class h_function:
     def send_gg_chat_noti_with_divider(msg1,msg2,msg3,msg4,msg5):
         chat_key = os.environ['GG_CHAT_KEY']
         chat_token = os.environ['GG_CHAT_TOKEN']
-        webhook_url = f"https://chat.googleapis.com/v1/spaces/AAAAlqqeJy0/messages?key={chat_key}&token={chat_token}"
+        webhook_url = f"https://chat.googleapis.com/v1/spaces/AAAAcP4fG9Q/messages?key={chat_key}&token={chat_token}"
         message = {
             "cards_v2" : [{ 
                 "card": {

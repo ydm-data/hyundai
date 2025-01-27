@@ -43,8 +43,8 @@ class h_function:
         return value
     
     def send_gg_chat_noti(msg):
-        chat_key = os.environ['GG_CHAT_KEY']
-        chat_token = os.environ['GG_CHAT_TOKEN']
+        chat_key = os.environ.get("GG_CHAT_KEY")
+        chat_token = os.environ.get("GG_CHAT_TOKEN")
         webhook_url = f"https://chat.googleapis.com/v1/spaces/AAAAlqqeJy0/messages?key={chat_key}&token={chat_token}"
         message = {
             "cards_v2" : [{ 

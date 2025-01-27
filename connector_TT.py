@@ -20,7 +20,7 @@ class TT_connector:
         query_string = urlencode({k: v if isinstance(v, string_types) else json.dumps(v) for k, v in args.items()})
         url = TT_connector.build_url(PATH, query_string)
         headers = {
-            "Access-Token": os.environ['TIKTOKTOKEN'],
+            "Access-Token": os.environ.get("TIKTOKTOKEN"),
         }
         rsp = requests.get(url, headers=headers)
         return rsp.json()

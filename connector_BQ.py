@@ -75,7 +75,7 @@ class BQ_Connector:
             str: The most recent date of data from targeted table
         """
         
-        query = f"""SELECT {date_column} FROM `ydmdashboard.{dataset_name}.{table_name}` 
+        query = f"""SELECT {date_column} FROM `hmth-448709.{dataset_name}.{table_name}` 
                 ORDER BY {date_column} desc 
                 LIMIT 1"""
         result = client.query(query).result()
@@ -98,7 +98,7 @@ class BQ_Connector:
         # Fetch distinct action types
         distinct_action_types_query = f"""
         SELECT DISTINCT {action_type}
-        FROM `ydmdashboard.{dataset_name}.{table_name}`
+        FROM `hmth-448709.{dataset_name}.{table_name}`
         """
         distinct_action_types_result = client.query(distinct_action_types_query)
         distinct_action_types = [row.action_type for row in distinct_action_types_result]
@@ -106,7 +106,7 @@ class BQ_Connector:
         # Constructing the SQL query dynamically
         pivot_query = f"""
         SELECT *
-        FROM `ydmdashboard.{dataset_name}.{table_name}`
+        FROM `hmth-448709.{dataset_name}.{table_name}`
         PIVOT (
         SUM(value) FOR {pivot_action_type} IN ({", ".join([f"'{action_type}'" for action_type in distinct_action_types])})
         );

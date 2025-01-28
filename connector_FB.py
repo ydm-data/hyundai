@@ -138,7 +138,7 @@ class FB_Connector:
         if len(action_data) > 0:
         
             action_data = FB_Connector.clean_action_data(action_data)
-            project_id = 'ydmdashboard'
+            project_id = 'hmth-448709'
             client = bigquery.Client(project=project_id)
             
             BQ_Connector.delete_data(client,"media_data_facebook","facebook_action_unpivot_temp")

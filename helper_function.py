@@ -66,7 +66,7 @@ class h_function:
         response = requests.post(webhook_url, headers={"Content-Type": "application/json"}, data=json.dumps(message))
         return json.dumps({'success': msg}), 200
     
-    def send_gg_chat_noti_with_divider(msg1,msg2,msg3,msg4,msg5):
+    def send_gg_chat_noti_with_divider(msg1,msg2):
         chat_key = os.environ['GG_CHAT_KEY']
         chat_token = os.environ['GG_CHAT_TOKEN']
         webhook_url = f"https://chat.googleapis.com/v1/spaces/AAAAcP4fG9Q/messages?key={chat_key}&token={chat_token}"
@@ -91,27 +91,6 @@ class h_function:
                             },
                             {
                             "divider": {}
-                            },
-                            {
-                                "textParagraph": {
-                                    "text": msg3
-                                }
-                            },
-                            {
-                            "divider": {}
-                            },
-                            {
-                                "textParagraph": {
-                                    "text": msg4
-                                }
-                            },
-                            {
-                            "divider": {}
-                            },
-                            {
-                                "textParagraph": {
-                                    "text": msg5
-                                }
                             }
                         ]
                     }]

@@ -18,6 +18,7 @@ from connector_BQ import BQ_Connector
 from connector_TT import TT_connector
 from helper_function import h_function
 
+from google.oauth2 import service_account
 from google.ads.googleads.client import GoogleAdsClient
 
 app = Flask(__name__)
@@ -224,15 +225,16 @@ def update_tiktok_spark_ads():
     advertiser_ids_list = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Tiktok")
     access_token = os.environ.get("TIKTOKTOKEN")
     all_video_list = TT_connector.get_spark_ads(access_token, advertiser_ids_list)
-    flatten_list = TT_connector.flatten_list_of_dicts(all_video_list)
-    spark_video = pd.DataFrame(flatten_list)
-    client = bigquery.Client()
-    BQ_Connector.delete_data(client, "rda_analytics_temp", "media_tiktok_spark_ads_temp")
-    BQ_Connector.load_data(client, "rda_analytics_temp", "media_tiktok_spark_ads_temp", spark_video)
-    BQ_Connector.delete_when_match(client,"rda_analytics","media_tiktok_spark_ads","rda_analytics_temp","media_tiktok_spark_ads_temp",
-                  "ON (ori.item_id = temp.item_id) ")
-    BQ_Connector.load_data(client, "rda_analytics", "media_tiktok_spark_ads", spark_video)
-    return json.dumps({'success': 'Check Media Recent Date'}), 200
+    if len(all_video_list) > 0:
+        flatten_list = TT_connector.flatten_list_of_dicts(all_video_list)
+        spark_video = pd.DataFrame(flatten_list)
+        client = bigquery.Client()
+        BQ_Connector.delete_data(client, "rda_analytics_temp", "media_tiktok_spark_ads_temp")
+        BQ_Connector.load_data(client, "rda_analytics_temp", "media_tiktok_spark_ads_temp", spark_video)
+        BQ_Connector.delete_when_match(client,"rda_analytics","media_tiktok_spark_ads","rda_analytics_temp","media_tiktok_spark_ads_temp",
+                    "ON (ori.item_id = temp.item_id) ")
+        BQ_Connector.load_data(client, "rda_analytics", "media_tiktok_spark_ads", spark_video)
+    return json.dumps({'success': 'Update Tiktok Spark Ads'}), 200
 
 
 @app.route('/update_tiktok_ad_info', methods=['POST'])
@@ -291,10 +293,16 @@ def update_google_adsbasicstats():
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
     query = GG_Connector.get_basicstat_query(start_date,end_date)
     
-    config_dict = GG_Connector.get_config_dict()
-
+    # config_dict = GG_Connector.get_config_dict()
     # Initialize the client using the config dictionary
-    client = GoogleAdsClient.load_from_dict(config_dict)
+    
+    scopes=['https://www.googleapis.com/auth/adwords']
+    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
+
+    # Initialize the GoogleAdsClient with the credentials
+    client = GoogleAdsClient(credentials=credentials, developer_token="alGFPe2ZPrWil5OfOJ6oDQ")
+
     all_data = GG_Connector.get_basicstat_data(client,customer_ids,query)
     df = pd.DataFrame(all_data)
     df['segments_date'] = pd.to_datetime(df['segments_date'])
@@ -847,26 +855,26 @@ def check_updated_media_data():
     gg_VideoConversoinStats = BQ_Connector.get_recent_date(client,"segments_date", "rda_analytics", "media_google_VideoConversionStats")
     gg_VideoNonClickStats = BQ_Connector.get_recent_date(client,"segments_date", "rda_analytics", "media_google_VideoNonClickStats")
     
-    tiktok_main = BQ_Connector.get_recent_date(client, "stat_time_day","rda_analytics_temp", "media_tiktok_main_temp")
-    tiktok_event = BQ_Connector.get_recent_date(client, "stat_time_day","rda_analytics_temp", "media_tiktok_event_temp")
-    tiktok_pageevent = BQ_Connector.get_recent_date(client, "stat_time_day","rda_analytics_temp", "media_tiktok_pageevent_temp")
-    tiktok_shopads = BQ_Connector.get_recent_date(client, "stat_time_day","rda_analytics_temp", "media_tiktok_shop_ads_temp")
+    tiktok_main = BQ_Connector.get_recent_date(client, "stat_time_day","rda_analytics", "media_tiktok_main")
+    tiktok_event = BQ_Connector.get_recent_date(client, "stat_time_day","rda_analytics", "media_tiktok_event")
+    tiktok_pageevent = BQ_Connector.get_recent_date(client, "stat_time_day","rda_analytics", "media_tiktok_pageevent")
+    tiktok_shopads = BQ_Connector.get_recent_date(client, "stat_time_day","rda_analytics", "media_tiktok_shop_ads")
     
-    rtb_data = BQ_Connector.get_recent_date(client, "day","rda_analytics", "media_rtb_house")
+    # rtb_data = BQ_Connector.get_recent_date(client, "day","rda_analytics", "media_rtb_house")
     
-    fb_main = BQ_Connector.get_recent_date(client, "date_start","rda_analytics", "media_facebook_main")
-    fb_actions = BQ_Connector.get_recent_date(client, "date_start","rda_analytics", "media_facebook_action")
-    fb_catalog = BQ_Connector.get_recent_date(client, "date_start","rda_analytics", "media_facebook_catalog_segment")
+    # fb_main = BQ_Connector.get_recent_date(client, "date_start","rda_analytics", "media_facebook_main")
+    # fb_actions = BQ_Connector.get_recent_date(client, "date_start","rda_analytics", "media_facebook_action")
+    # fb_catalog = BQ_Connector.get_recent_date(client, "date_start","rda_analytics", "media_facebook_catalog_segment")
     
-    line_main = BQ_Connector.get_recent_date(client, "date","rda_analytics", "media_line")
+    # line_main = BQ_Connector.get_recent_date(client, "date","rda_analytics", "media_line")
     
     msg1 = f"🌳 <b>Google</b> \n GG AdBasicsStats: 📅{gg_AdBasics}\n  GG AdCrossDevice: 📅{gg_AdCrossDevice}\n  GG AdGroupCrossDevice: 📅{gg_AdGroupCrossDevice}\n  GG CampaignBasicStats: 📅{gg_CampaignBasic}\n  GG CampaignCrossDevice: 📅{gg_CampaignCrossDevice}\n GG KeywordBasic: 📅{gg_KeywordBasic}\n  GG KeywordCrossDevice: 📅{gg_KeywordCrossDevice}\n  GG VideoBasicStats: 📅{gg_VideoBasicStats}\n GG VideoConversoinStats: 📅{gg_VideoConversoinStats}\n GG VideoNonClickStats: 📅{gg_VideoNonClickStats}"
     msg2 = f"🎶 <b>Tiktok</b> \n TT Main: 📅{tiktok_main}\n TT Event: 📅{tiktok_event}\n TT Page Event: 📅{tiktok_pageevent}\n TT Shop Ads: 📅{tiktok_shopads}"
-    msg3 = f"🌻 <b>RTB</b> \n RTB: 📅{rtb_data}"
-    msg4 = f"🔷 <b>Facebook</b> \n FB Main: 📅{fb_main}\n FB Actions: 📅{fb_actions}\n FB Catalog Segment: 📅{fb_catalog}"
-    msg5 = f"💬 <b>Line</b> \n Line: 📅{line_main}"
+    # msg3 = f"🌻 <b>RTB</b> \n RTB: 📅{rtb_data}"
+    # msg4 = f"🔷 <b>Facebook</b> \n FB Main: 📅{fb_main}\n FB Actions: 📅{fb_actions}\n FB Catalog Segment: 📅{fb_catalog}"
+    # msg5 = f"💬 <b>Line</b> \n Line: 📅{line_main}"
     
-    h_function.send_gg_chat_noti_with_divider(msg1,msg2,msg3,msg4,msg5)
+    h_function.send_gg_chat_noti_with_divider(msg1,msg2)
     return json.dumps({'success': 'Check Media Recent Date'}), 200
 
 @app.route('/update_google_search_console', methods=['POST'])

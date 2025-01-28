@@ -458,7 +458,7 @@ class TT_connector:
         project_id = "hmth-448709"
         dataset_id = "rda_analytics"
         table = "media_tiktok_ad_info"
-        target_table = "media_tiktok_video_ad_info"
+        target_table = "media_tiktok_video_ads_info"
         
         source_query = f"""
         SELECT DISTINCT video_id

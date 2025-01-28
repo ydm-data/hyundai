@@ -221,8 +221,8 @@ def update_tiktok_lifetime_advertiser():
 @app.route('/update_tiktok_spark_ads', methods=['POST'])
 def update_tiktok_spark_ads():
     service = h_function.get_service()
-    advertiser_ids_list = h_function.get_account(service,"tiktok advertiesr id!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"Advertiser ID")
-    access_token = os.environ['TIKTOKTOKEN']
+    advertiser_ids_list = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Tiktok")
+    access_token = os.environ.get("TIKTOKTOKEN")
     all_video_list = TT_connector.get_spark_ads(access_token, advertiser_ids_list)
     flatten_list = TT_connector.flatten_list_of_dicts(all_video_list)
     spark_video = pd.DataFrame(flatten_list)
@@ -238,10 +238,10 @@ def update_tiktok_spark_ads():
 @app.route('/update_tiktok_ad_info', methods=['POST'])
 def update_tiktok_ad_info():
     service = h_function.get_service()
-    advertiser_ids_list = h_function.get_account(service,"tiktok advertiesr id!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"Advertiser ID")
+    advertiser_ids_list = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Tiktok")
     url = 'https://ads.tiktok.com/open_api/v1.3/ad/get/'
     headers = {
-            "Access-Token": os.environ['TIKTOKTOKEN'],
+            "Access-Token": os.environ.get("TIKTOKTOKEN"),
             'Content-Type': 'application/json'
         }
 
@@ -260,13 +260,13 @@ def update_tiktok_ad_info():
 @app.route('/update_tiktok_video_ad_info', methods=['POST'])
 def update_tiktok_video_ad_info():
     service = h_function.get_service()
-    advertiser_ids_list = h_function.get_account(service,"tiktok advertiesr id!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"Advertiser ID")
+    advertiser_ids_list = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Tiktok")
     all_video_df = pd.DataFrame()
     client = bigquery.Client()
 
     for advertiser_id in advertiser_ids_list:
         video_id_list_target = TT_connector.get_target_video_list(client, advertiser_id)
-        access_token = os.environ['TIKTOKTOKEN']
+        access_token = os.environ.get("TIKTOKTOKEN")
         if len(video_id_list_target) > 0:
             all_video_df = pd.concat([all_video_df,TT_connector.get_all_video(video_id_list_target, advertiser_id, access_token)],ignore_index=True)
     

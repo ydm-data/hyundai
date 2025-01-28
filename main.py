@@ -285,7 +285,7 @@ def update_tiktok_video_ad_info():
 @app.route('/update_google_adsbasicstats', methods=['POST'])
 def update_google_adsbasicstats():
     service = h_function.get_service()
-    customer_ids = h_function.get_account(service,"google_ad_account!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"account_id")
+    customer_ids = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Google")
 
     end_date = datetime.now().strftime('%Y-%m-%d')
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
@@ -303,7 +303,7 @@ def update_google_adsbasicstats():
     df['metrics_interaction_event_types'] = df['metrics_interaction_event_types'].apply(GG_Connector.preprocess_interaction_event)
     df['campaign_advertising_channel_type'] = df['campaign_advertising_channel_type'].apply(GG_Connector.get_advertising_channel_type)
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)   
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_AdBasicStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_AdBasicStats_temp",df)
@@ -319,7 +319,7 @@ def update_google_adsbasicstats():
 @app.route('/update_google_adgroupbasicstats', methods=['POST'])
 def update_google_adgroupbasicstats():
     service = h_function.get_service()
-    customer_ids = h_function.get_account(service,"google_ad_account!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"account_id")
+    customer_ids = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Google")
 
     end_date = datetime.now().strftime('%Y-%m-%d')
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
@@ -337,7 +337,7 @@ def update_google_adgroupbasicstats():
     df['metrics_interaction_event_types'] = df['metrics_interaction_event_types'].apply(GG_Connector.preprocess_interaction_event)
     df['campaign_advertising_channel_type'] = df['campaign_advertising_channel_type'].apply(GG_Connector.get_advertising_channel_type)
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)   
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_AdGroupBasicStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_AdGroupBasicStats_temp",df)
@@ -353,7 +353,7 @@ def update_google_adgroupbasicstats():
 @app.route('/update_google_campaignbasicstats', methods=['POST'])
 def update_google_campaignbasicstats():
     service = h_function.get_service()
-    customer_ids = h_function.get_account(service,"google_ad_account!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"account_id")
+    customer_ids = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Google")
 
     end_date = datetime.now().strftime('%Y-%m-%d')
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
@@ -371,7 +371,7 @@ def update_google_campaignbasicstats():
     df['metrics_interaction_event_types'] = df['metrics_interaction_event_types'].apply(GG_Connector.preprocess_interaction_event)
     df['campaign_advertising_channel_type'] = df['campaign_advertising_channel_type'].apply(GG_Connector.get_advertising_channel_type)
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)   
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_CampaignBasicStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_CampaignBasicStats_temp",df)
@@ -387,7 +387,7 @@ def update_google_campaignbasicstats():
 @app.route('/update_google_keywordbasicstats', methods=['POST'])
 def update_google_keywordbasicstats():
     service = h_function.get_service()
-    customer_ids = h_function.get_account(service,"google_ad_account!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"account_id")
+    customer_ids = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Google")
 
     end_date = datetime.now().strftime('%Y-%m-%d')
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
@@ -405,7 +405,7 @@ def update_google_keywordbasicstats():
     df['metrics_interaction_event_types'] = df['metrics_interaction_event_types'].apply(GG_Connector.preprocess_interaction_event)
     df['campaign_advertising_channel_type'] = df['campaign_advertising_channel_type'].apply(GG_Connector.get_advertising_channel_type)
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)   
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_KeywordBasicStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_KeywordBasicStats_temp",df)
@@ -420,7 +420,7 @@ def update_google_keywordbasicstats():
 @app.route('/update_google_videobasicstats', methods=['POST'])
 def update_google_videobasicstats():
     service = h_function.get_service()
-    customer_ids = h_function.get_account(service,"google_ad_account!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"account_id")
+    customer_ids = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Google")
 
     end_date = datetime.now().strftime('%Y-%m-%d')
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
@@ -437,7 +437,7 @@ def update_google_videobasicstats():
     df['ad_group_ad_status'] = df['ad_group_ad_status'].apply(GG_Connector.get_ad_group_ad_status)
     df['campaign_advertising_channel_type'] = df['campaign_advertising_channel_type'].apply(GG_Connector.get_advertising_channel_type)
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)   
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_VideoBasicStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_VideoBasicStats_temp",df)
@@ -453,7 +453,7 @@ def update_google_videobasicstats():
 @app.route('/update_google_videoconversionstats', methods=['POST'])
 def update_google_videoconversionstats():
     service = h_function.get_service()
-    customer_ids = h_function.get_account(service,"google_ad_account!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"account_id")
+    customer_ids = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Google")
 
     end_date = datetime.now().strftime('%Y-%m-%d')
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
@@ -478,7 +478,7 @@ def update_google_videoconversionstats():
         df['segments_day_of_week'] = df['segments_day_of_week'].apply(GG_Connector.get_day_of_week)
         df['segments_conversion_action_category'] = df['segments_conversion_action_category'].apply(GG_Connector.get_conversion_action_category)
         
-        project_id = 'ydmdashboard'
+        project_id = 'hmth-448709'
         client = bigquery.Client(project=project_id)   
         BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_VideoConversionStats_temp")
         BQ_Connector.load_data(client, "rda_analytics_temp","media_google_VideoConversionStats_temp",df)
@@ -498,7 +498,7 @@ def update_google_videoconversionstats():
 @app.route('/update_google_videononclickstats', methods=['POST'])
 def update_google_videononclickstats():
     service = h_function.get_service()
-    customer_ids = h_function.get_account(service,"google_ad_account!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"account_id")
+    customer_ids = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Google")
 
     end_date = datetime.now().strftime('%Y-%m-%d')
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
@@ -520,7 +520,7 @@ def update_google_videononclickstats():
     df['segments_day_of_week'] = df['segments_day_of_week'].apply(GG_Connector.get_day_of_week)
     df['campaign_advertising_channel_type'] = df['campaign_advertising_channel_type'].apply(GG_Connector.get_advertising_channel_type)
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)   
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_VideoNonClickStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_VideoNonClickStats_temp",df)
@@ -536,7 +536,7 @@ def update_google_videononclickstats():
 @app.route('/update_google_adcrossconversionstats', methods=['POST'])
 def update_google_adcrossconversionstats():
     service = h_function.get_service()
-    customer_ids = h_function.get_account(service,"google_ad_account!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"account_id")
+    customer_ids = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Google")
 
     end_date = datetime.now().strftime('%Y-%m-%d')
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
@@ -559,7 +559,7 @@ def update_google_adcrossconversionstats():
     df['segments_conversion_action_category']= df['segments_conversion_action_category'].apply(GG_Connector.get_conversion_action_category)
     df['segments_click_type'] = df['segments_click_type'].apply(GG_Connector.get_click_type)
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)   
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_AdCrossDeviceConversionStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_AdCrossDeviceConversionStats_temp",df)
@@ -574,7 +574,7 @@ def update_google_adcrossconversionstats():
 @app.route('/update_google_adgroupcrossconversionstats', methods=['POST'])
 def update_google_adgroupcrossconversionstats():
     service = h_function.get_service()
-    customer_ids = h_function.get_account(service,"google_ad_account!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"account_id")
+    customer_ids = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Google")
 
     end_date = datetime.now().strftime('%Y-%m-%d')
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
@@ -597,7 +597,7 @@ def update_google_adgroupcrossconversionstats():
     df['segments_conversion_action_category']= df['segments_conversion_action_category'].apply(GG_Connector.get_conversion_action_category)
     df['segments_click_type'] = df['segments_click_type'].apply(GG_Connector.get_click_type)
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)   
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_AdGroupCrossDeviceConversionStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_AdGroupCrossDeviceConversionStats_temp",df)
@@ -613,7 +613,7 @@ def update_google_adgroupcrossconversionstats():
 @app.route('/update_google_campaigncrossconversionstats', methods=['POST'])
 def update_google_campaigncrossconversionstats():
     service = h_function.get_service()
-    customer_ids = h_function.get_account(service,"google_ad_account!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"account_id")
+    customer_ids = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Google")
 
     end_date = datetime.now().strftime('%Y-%m-%d')
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
@@ -636,7 +636,7 @@ def update_google_campaigncrossconversionstats():
     df['segments_conversion_action_category']= df['segments_conversion_action_category'].apply(GG_Connector.get_conversion_action_category)
     df['segments_conversion_attribution_event_type']= df['segments_conversion_attribution_event_type'].apply(GG_Connector.get_conversion_attribution_event_type)
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)   
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_CampaignCrossDeviceConversionStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_CampaignCrossDeviceConversionStats_temp",df)
@@ -651,7 +651,7 @@ def update_google_campaigncrossconversionstats():
 @app.route('/update_google_keywordcrossconversionstats', methods=['POST'])
 def update_google_keywordcrossconversionstats():
     service = h_function.get_service()
-    customer_ids = h_function.get_account(service,"google_ad_account!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"account_id")
+    customer_ids = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Google")
 
     end_date = datetime.now().strftime('%Y-%m-%d')
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
@@ -674,7 +674,7 @@ def update_google_keywordcrossconversionstats():
     df['segments_conversion_action_category']= df['segments_conversion_action_category'].apply(GG_Connector.get_conversion_action_category)
     df['ad_group_criterion_keyword_match_type']= df['ad_group_criterion_keyword_match_type'].apply(GG_Connector.get_keyword_match_type)
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_KeywordCrossDeviceConversionStats_temp")
     BQ_Connector.load_data(client, "rda_analytics_temp","media_google_KeywordCrossDeviceConversionStats_temp",df)
@@ -690,7 +690,7 @@ def update_google_keywordcrossconversionstats():
 @app.route('/update_google_adgrouplabel', methods=['POST'])
 def update_google_adgrouplabel():
     service = h_function.get_service()
-    customer_ids = h_function.get_account(service,"google_ad_account!A1:ZZ",'1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM',"account_id")
+    customer_ids = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Google")
 
     query = GG_Connector.get_adgroup_label_query()
     config_dict = GG_Connector.get_config_dict()
@@ -700,7 +700,7 @@ def update_google_adgrouplabel():
     all_data = GG_Connector.get_adgroup_label_data(client,customer_ids,query)
     df = pd.DataFrame(all_data)
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)
     BQ_Connector.delete_data(client,"rda_analytics","media_google_AdGroupLabel")
     BQ_Connector.load_data(client, "rda_analytics","media_google_AdGroupLabel",df)
@@ -716,14 +716,14 @@ def update_fb_daily():
     round =  request.args.get('round')
     my_accounts = FB_Connector.get_myaccount(access_token)
     service = h_function.get_service()
-    target_account = h_function.get_account_batch_run(service,"facebook ad account id!A1:ZZ","1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM",round,"account id")
+    target_account = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Facebook")
     target_account = ['act_' + item for item in target_account]
     fields = FB_Connector.get_fb_main_fields()
     asyn_job_list = FB_Connector.get_asynjob(my_accounts, target_account, fields, 15, "ad")    
     ads_data = FB_Connector.clean_ads_data(asyn_job_list)
     ads_data = FB_Connector.transform_fb_main(ads_data)
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)
     
     BQ_Connector.delete_data(client,'rda_analytics_temp', 'media_facebook_main_temp')
@@ -742,7 +742,7 @@ def update_fb_daily_action():
     access_token = os.environ['FBTOKEN']
     my_accounts = FB_Connector.get_myaccount(access_token)
     service = h_function.get_service()
-    target_account = h_function.get_account(service,"facebook ad account id!A1:ZZ","1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM","account id")
+    target_account = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Facebook")
     target_account = ['act_' + item for item in target_account]
     
     fields = FB_Connector.get_fb_action_fields()
@@ -761,7 +761,7 @@ def update_fb_daily_action():
     ads_data['date_stop'] = pd.to_datetime(ads_data['date_stop'])
     ads_data['created_time'] = pd.to_datetime(ads_data['created_time'])
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)
     BQ_Connector.delete_data(client,'rda_analytics_temp', 'media_facebook_action_temp')
     BQ_Connector.load_data(client, 'rda_analytics_temp', 'media_facebook_action_temp', ads_data)
@@ -779,7 +779,7 @@ def update_fb_daily_catalog_segments():
     access_token = os.environ['FBTOKEN']
     my_accounts = FB_Connector.get_myaccount(access_token)
     service = h_function.get_service()
-    target_account = h_function.get_account(service,"facebook ad account id!A1:ZZ","1J4CFmlg3YwZHBEvZ3Nzf3v7QeayqhDdqGl-OPqS_lSM","account id")
+    target_account = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Facebook")
     target_account = ['act_' + item for item in target_account]
     
     fields = FB_Connector.get_fb_catalog_fields()
@@ -794,7 +794,7 @@ def update_fb_daily_catalog_segments():
     ads_data['date_stop'] = pd.to_datetime(ads_data['date_stop'])
     ads_data['created_time'] = pd.to_datetime(ads_data['created_time'])
     
-    project_id = 'ydmdashboard'
+    project_id = 'hmth-448709'
     client = bigquery.Client(project=project_id)
     BQ_Connector.delete_data(client,'rda_analytics_temp', 'media_facebook_catalog_segment_temp')
     BQ_Connector.load_data(client, 'rda_analytics_temp', 'media_facebook_catalog_segment_temp', ads_data)
@@ -928,7 +928,7 @@ def update_google_search_console():
                 })
             return transformed_records
         
-        table_ref = "ydmdashboard.rda_analytics.google_google_search_console"
+        table_ref = "hmth-448709.rda_analytics.google_google_search_console"
         listSite = list_sites()
         bangkok_tz = pytz.timezone('Asia/Bangkok')
         dateNow = datetime.now(bangkok_tz)
@@ -948,8 +948,8 @@ def update_google_search_console():
                     transformed_data = transform_data(listData, site)
                     print("Transformed data done")
 
-                    client = bigquery.Client(project="ydmdashboard")
-                    table = bigquery.Table("ydmdashboard.rda_analytics.google_google_search_console", schema=schema)
+                    client = bigquery.Client(project="hmth-448709")
+                    table = bigquery.Table("hmth-448709.rda_analytics.google_google_search_console", schema=schema)
                     table.time_partitioning = bigquery.TimePartitioning(
                         type_=bigquery.TimePartitioningType.DAY,
                         field="date"

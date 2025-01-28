@@ -455,8 +455,8 @@ class TT_connector:
         return all_ads_df
     
     def get_target_video_list(client, advertiser_id):
-        project_id = "ydmdashboard"
-        dataset_id = "media_data_google"
+        project_id = "hmth-448709"
+        dataset_id = "rda_analytics"
         table = "media_tiktok_ad_info"
         target_table = "media_tiktok_video_ad_info"
         

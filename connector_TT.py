@@ -80,9 +80,7 @@ class TT_connector:
 
         for each_account in advertiser_ids_list:
             page = 1
-            print(each_account)
             while True:
-                print(page)
                 my_args = "{\"data_level\": \"%s\", \"advertiser_id\": %s, \"report_type\": \"%s\", \"dimensions\": %s, \"metrics\": %s, \"page_size\" : \"%s\",\"page\": \"%s\", \"query_lifetime\": \"%s\"}" % (data_level, each_account, report_type, dimensions, metrics, page_size,page, query_lifetime)
                 response2 = TT_connector.get(my_args, PATH)
                 for each_record in response2['data']['list']:
@@ -422,7 +420,6 @@ class TT_connector:
         page_size = 1000  # Number of ads to fetch per request
         all_ads = []
         for advertiser_id in advertiser_ids_list:
-            print(f"Advertiser ID: {advertiser_id}", end = ": ")
             while True:
                 payload = {
                     "advertiser_id": advertiser_id,

@@ -295,7 +295,8 @@ def update_exchange_rate_idr_thb():
         response = requests.get(url)
         temp = {
             "date": date,
-            "thb" : response.json()['idr']['thb']
+            "thb" : response.json()['idr']['thb'],
+            "usd" : response.json()['idr']['usd']
         }
         rate_list.append(temp)
         

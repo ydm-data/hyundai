@@ -1056,6 +1056,17 @@ class GG_Connector:
     def preprocess_interaction_event(event):
         return [e.name for e in event]
     
+    def interaction_event_mapping():
+        value_mapping = {
+            0: "UNSPECIFIED",
+            1: "UNKNOWN",
+            2: "CLICK",
+            3: "ENGAGEMENT",
+            4: "VIDEO_VIEW",
+            5: "NONE"
+        }
+        return value_mapping
+    
     def get_click_type(enum_value):
         click_type_mapping = {
             0: "UNSPECIFIED",

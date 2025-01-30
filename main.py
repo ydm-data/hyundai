@@ -486,21 +486,22 @@ def update_google_videobasicstats():
     client = GoogleAdsClient(credentials=credentials, developer_token=os.environ.get('GG_DEV_TOKEN'))
     all_data = GG_Connector.get_video_basicstat_data(client,customer_ids,query)
     df = pd.DataFrame(all_data)
-    df['segments_date'] = pd.to_datetime(df['segments_date'])
-    df['segments_ad_network_type'] = df['segments_ad_network_type'].apply(GG_Connector.get_ad_network_type_description)
-    df['ad_group_ad_status'] = df['ad_group_ad_status'].apply(GG_Connector.get_ad_group_ad_status)
-    df['campaign_advertising_channel_type'] = df['campaign_advertising_channel_type'].apply(GG_Connector.get_advertising_channel_type)
-    
-    project_id = 'hmth-448709'
-    client = bigquery.Client(project=project_id)   
-    BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_VideoBasicStats_temp")
-    BQ_Connector.load_data(client, "rda_analytics_temp","media_google_VideoBasicStats_temp",df)
-    condition = "ON (ori.segments_date = temp.segments_date AND ori.customer_id = temp.customer_id AND ori.ad_group_ad_ad_id = temp.ad_group_ad_ad_id AND ori.video_id = temp.video_id) "
-    BQ_Connector.delete_when_match(client,"rda_analytics","media_google_VideoBasicStats","rda_analytics_temp","media_google_VideoBasicStats_temp",condition)
-    BQ_Connector.load_data(client,"rda_analytics","media_google_VideoBasicStats",df)
+    if len(df) > 0:
+        df['segments_date'] = pd.to_datetime(df['segments_date'])
+        df['segments_ad_network_type'] = df['segments_ad_network_type'].apply(GG_Connector.get_ad_network_type_description)
+        df['ad_group_ad_status'] = df['ad_group_ad_status'].apply(GG_Connector.get_ad_group_ad_status)
+        df['campaign_advertising_channel_type'] = df['campaign_advertising_channel_type'].apply(GG_Connector.get_advertising_channel_type)
+        
+        project_id = 'hmth-448709'
+        client = bigquery.Client(project=project_id)   
+        BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_VideoBasicStats_temp")
+        BQ_Connector.load_data(client, "rda_analytics_temp","media_google_VideoBasicStats_temp",df)
+        condition = "ON (ori.segments_date = temp.segments_date AND ori.customer_id = temp.customer_id AND ori.ad_group_ad_ad_id = temp.ad_group_ad_ad_id AND ori.video_id = temp.video_id) "
+        BQ_Connector.delete_when_match(client,"rda_analytics","media_google_VideoBasicStats","rda_analytics_temp","media_google_VideoBasicStats_temp",condition)
+        BQ_Connector.load_data(client,"rda_analytics","media_google_VideoBasicStats",df)
 
-    msg = "🌳 Media: <b>Google VideoBasicStats</b> Executed Successfully on 📅 "
-    h_function.send_gg_chat_noti(msg)
+        msg = "🌳 Media: <b>Google VideoBasicStats</b> Executed Successfully on 📅 "
+        h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Google VideoBasicStats Completed'}), 200
 
 
@@ -728,28 +729,29 @@ def update_google_keywordcrossconversionstats():
     # Initialize the GoogleAdsClient with the credentials
     client = GoogleAdsClient(credentials=credentials, developer_token=os.environ.get('GG_DEV_TOKEN'))
     all_data = GG_Connector.get_keyword_cross_device_conversion_stat_data(client,customer_ids,query)
-    df = pd.DataFrame(all_data)
-    df['segments_date'] = pd.to_datetime(df['segments_date'])
-    df['segments_month'] = pd.to_datetime(df['segments_month'])
-    df['segments_quarter'] = pd.to_datetime(df['segments_quarter'])
-    df['segments_week'] = pd.to_datetime(df['segments_week'])
-    
-    df['segments_ad_network_type'] = df['segments_ad_network_type'].apply(GG_Connector.get_ad_network_type_description)
-    df['segments_day_of_week'] = df['segments_day_of_week'].apply(GG_Connector.get_day_of_week)
-    df['campaign_advertising_channel_type'] = df['campaign_advertising_channel_type'].apply(GG_Connector.get_advertising_channel_type)
-    df['segments_conversion_action_category']= df['segments_conversion_action_category'].apply(GG_Connector.get_conversion_action_category)
-    df['ad_group_criterion_keyword_match_type']= df['ad_group_criterion_keyword_match_type'].apply(GG_Connector.get_keyword_match_type)
-    
-    project_id = 'hmth-448709'
-    client = bigquery.Client(project=project_id)
-    BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_KeywordCrossDeviceConversionStats_temp")
-    BQ_Connector.load_data(client, "rda_analytics_temp","media_google_KeywordCrossDeviceConversionStats_temp",df)
-    condition = "ON (ori.segments_date = temp.segments_date AND ori.customer_id = temp.customer_id AND ori.ad_group_criterion_criterion_id = temp.ad_group_criterion_criterion_id) "
-    BQ_Connector.delete_when_match(client,"rda_analytics","media_google_KeywordCrossDeviceConversionStats","rda_analytics_temp","media_google_KeywordCrossDeviceConversionStats_temp",condition)
-    BQ_Connector.load_data(client,"rda_analytics","media_google_KeywordCrossDeviceConversionStats",df)
+    if len(df) > 0:
+        df = pd.DataFrame(all_data)
+        df['segments_date'] = pd.to_datetime(df['segments_date'])
+        df['segments_month'] = pd.to_datetime(df['segments_month'])
+        df['segments_quarter'] = pd.to_datetime(df['segments_quarter'])
+        df['segments_week'] = pd.to_datetime(df['segments_week'])
+        
+        df['segments_ad_network_type'] = df['segments_ad_network_type'].apply(GG_Connector.get_ad_network_type_description)
+        df['segments_day_of_week'] = df['segments_day_of_week'].apply(GG_Connector.get_day_of_week)
+        df['campaign_advertising_channel_type'] = df['campaign_advertising_channel_type'].apply(GG_Connector.get_advertising_channel_type)
+        df['segments_conversion_action_category']= df['segments_conversion_action_category'].apply(GG_Connector.get_conversion_action_category)
+        df['ad_group_criterion_keyword_match_type']= df['ad_group_criterion_keyword_match_type'].apply(GG_Connector.get_keyword_match_type)
+        
+        project_id = 'hmth-448709'
+        client = bigquery.Client(project=project_id)
+        BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_KeywordCrossDeviceConversionStats_temp")
+        BQ_Connector.load_data(client, "rda_analytics_temp","media_google_KeywordCrossDeviceConversionStats_temp",df)
+        condition = "ON (ori.segments_date = temp.segments_date AND ori.customer_id = temp.customer_id AND ori.ad_group_criterion_criterion_id = temp.ad_group_criterion_criterion_id) "
+        BQ_Connector.delete_when_match(client,"rda_analytics","media_google_KeywordCrossDeviceConversionStats","rda_analytics_temp","media_google_KeywordCrossDeviceConversionStats_temp",condition)
+        BQ_Connector.load_data(client,"rda_analytics","media_google_KeywordCrossDeviceConversionStats",df)
 
-    msg = "🌳 Media: <b>Google KeywordCrossDeviceConversionStats</b> Executed Successfully on 📅 "
-    h_function.send_gg_chat_noti(msg)
+        msg = "🌳 Media: <b>Google KeywordCrossDeviceConversionStats</b> Executed Successfully on 📅 "
+        h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Google KeywordCrossDeviceConversionStats Completed'}), 200
 
 

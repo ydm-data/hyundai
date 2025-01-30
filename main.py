@@ -449,23 +449,24 @@ def update_google_keywordbasicstats():
     client = GoogleAdsClient(credentials=credentials, developer_token=os.environ.get('GG_DEV_TOKEN'))
     all_data = GG_Connector.get_keyword_basicstat_data(client,customer_ids,query)
     df = pd.DataFrame(all_data)
-    df['segments_date'] = pd.to_datetime(df['segments_date'])
-    df['segments_ad_network_type'] = df['segments_ad_network_type'].apply(GG_Connector.get_ad_network_type_description)
-    df['ad_group_criterion_keyword_match_type'] = df['ad_group_criterion_keyword_match_type'].apply(GG_Connector.get_keyword_match_type)
-    value_mapping = GG_Connector.interaction_event_mapping()
-    df['metrics_interaction_event_types'] = df['metrics_interaction_event_types'].apply(lambda x: [value_mapping[val] for val in x if val in value_mapping])
-    df['campaign_advertising_channel_type'] = df['campaign_advertising_channel_type'].apply(GG_Connector.get_advertising_channel_type)
-    
-    project_id = 'hmth-448709'
-    client = bigquery.Client(project=project_id)   
-    BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_KeywordBasicStats_temp")
-    BQ_Connector.load_data(client, "rda_analytics_temp","media_google_KeywordBasicStats_temp",df)
-    condition = "ON (ori.segments_date = temp.segments_date AND ori.customer_id = temp.customer_id AND ori.ad_group_criterion_criterion_id = temp.ad_group_criterion_criterion_id AND ori.campaign_id = temp.campaign_id) "
-    BQ_Connector.delete_when_match(client,"rda_analytics","media_google_KeywordBasicStats","rda_analytics_temp","media_google_KeywordBasicStats_temp",condition)
-    BQ_Connector.load_data(client,"rda_analytics","media_google_KeywordBasicStats",df)
+    if len(df) > 0:
+        df['segments_date'] = pd.to_datetime(df['segments_date'])
+        df['segments_ad_network_type'] = df['segments_ad_network_type'].apply(GG_Connector.get_ad_network_type_description)
+        df['ad_group_criterion_keyword_match_type'] = df['ad_group_criterion_keyword_match_type'].apply(GG_Connector.get_keyword_match_type)
+        value_mapping = GG_Connector.interaction_event_mapping()
+        df['metrics_interaction_event_types'] = df['metrics_interaction_event_types'].apply(lambda x: [value_mapping[val] for val in x if val in value_mapping])
+        df['campaign_advertising_channel_type'] = df['campaign_advertising_channel_type'].apply(GG_Connector.get_advertising_channel_type)
+        
+        project_id = 'hmth-448709'
+        client = bigquery.Client(project=project_id)   
+        BQ_Connector.delete_data(client,"rda_analytics_temp","media_google_KeywordBasicStats_temp")
+        BQ_Connector.load_data(client, "rda_analytics_temp","media_google_KeywordBasicStats_temp",df)
+        condition = "ON (ori.segments_date = temp.segments_date AND ori.customer_id = temp.customer_id AND ori.ad_group_criterion_criterion_id = temp.ad_group_criterion_criterion_id AND ori.campaign_id = temp.campaign_id) "
+        BQ_Connector.delete_when_match(client,"rda_analytics","media_google_KeywordBasicStats","rda_analytics_temp","media_google_KeywordBasicStats_temp",condition)
+        BQ_Connector.load_data(client,"rda_analytics","media_google_KeywordBasicStats",df)
 
-    msg = "🌳 Media: <b>Google KeywordBasicStats</b> Executed Successfully on 📅 "
-    h_function.send_gg_chat_noti(msg)
+        msg = "🌳 Media: <b>Google KeywordBasicStats</b> Executed Successfully on 📅 "
+        h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Google KeywordBasicStats Completed'}), 200
 
 @app.route('/update_google_videobasicstats', methods=['POST'])

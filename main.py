@@ -378,7 +378,8 @@ def update_google_adgroupbasicstats():
     df['segments_date'] = pd.to_datetime(df['segments_date'])
     df['segments_ad_network_type'] = df['segments_ad_network_type'].apply(GG_Connector.get_ad_network_type_description)
     df['segments_slot'] = df['segments_slot'].apply(GG_Connector.get_slot_description)
-    df['metrics_interaction_event_types'] = df['metrics_interaction_event_types'].apply(GG_Connector.preprocess_interaction_event)
+    value_mapping = GG_Connector.interaction_event_mapping()
+    df['metrics_interaction_event_types'] = df['metrics_interaction_event_types'].apply(lambda x: [value_mapping[val] for val in x if val in value_mapping])
     df['campaign_advertising_channel_type'] = df['campaign_advertising_channel_type'].apply(GG_Connector.get_advertising_channel_type)
     
     project_id = 'hmth-448709'
@@ -414,7 +415,8 @@ def update_google_campaignbasicstats():
     df['segments_date'] = pd.to_datetime(df['segments_date'])
     df['segments_ad_network_type'] = df['segments_ad_network_type'].apply(GG_Connector.get_ad_network_type_description)
     df['segments_slot'] = df['segments_slot'].apply(GG_Connector.get_slot_description)
-    df['metrics_interaction_event_types'] = df['metrics_interaction_event_types'].apply(GG_Connector.preprocess_interaction_event)
+    value_mapping = GG_Connector.interaction_event_mapping()
+    df['metrics_interaction_event_types'] = df['metrics_interaction_event_types'].apply(lambda x: [value_mapping[val] for val in x if val in value_mapping])
     df['campaign_advertising_channel_type'] = df['campaign_advertising_channel_type'].apply(GG_Connector.get_advertising_channel_type)
     
     project_id = 'hmth-448709'
@@ -450,7 +452,8 @@ def update_google_keywordbasicstats():
     df['segments_date'] = pd.to_datetime(df['segments_date'])
     df['segments_ad_network_type'] = df['segments_ad_network_type'].apply(GG_Connector.get_ad_network_type_description)
     df['ad_group_criterion_keyword_match_type'] = df['ad_group_criterion_keyword_match_type'].apply(GG_Connector.get_keyword_match_type)
-    df['metrics_interaction_event_types'] = df['metrics_interaction_event_types'].apply(GG_Connector.preprocess_interaction_event)
+    value_mapping = GG_Connector.interaction_event_mapping()
+    df['metrics_interaction_event_types'] = df['metrics_interaction_event_types'].apply(lambda x: [value_mapping[val] for val in x if val in value_mapping])
     df['campaign_advertising_channel_type'] = df['campaign_advertising_channel_type'].apply(GG_Connector.get_advertising_channel_type)
     
     project_id = 'hmth-448709'

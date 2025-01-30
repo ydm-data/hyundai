@@ -334,7 +334,7 @@ def update_google_adsbasicstats():
     credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
     # Initialize the GoogleAdsClient with the credentials
-    client = GoogleAdsClient(credentials=credentials, developer_token="alGFPe2ZPrWil5OfOJ6oDQ")
+    client = GoogleAdsClient(credentials=credentials, developer_token=os.environ.get('GG_DEV_TOKEN'))
 
     all_data = GG_Connector.get_basicstat_data(client,customer_ids,query)
     df = pd.DataFrame(all_data)
@@ -366,10 +366,12 @@ def update_google_adgroupbasicstats():
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
     query = GG_Connector.get_adgroup_basicstat_query(start_date,end_date)
     
-    config_dict = GG_Connector.get_config_dict()
+    scopes=['https://www.googleapis.com/auth/adwords']
+    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
-    # Initialize the client using the config dictionary
-    client = GoogleAdsClient.load_from_dict(config_dict)
+    # Initialize the GoogleAdsClient with the credentials
+    client = GoogleAdsClient(credentials=credentials, developer_token=os.environ.get('GG_DEV_TOKEN'))
     all_data = GG_Connector.get_adgroup_basicstat_data(client,customer_ids,query)
     df = pd.DataFrame(all_data)
     df['segments_date'] = pd.to_datetime(df['segments_date'])
@@ -400,10 +402,12 @@ def update_google_campaignbasicstats():
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
     query = GG_Connector.get_campaign_basicstat_query(start_date,end_date)
     
-    config_dict = GG_Connector.get_config_dict()
+    scopes=['https://www.googleapis.com/auth/adwords']
+    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
-    # Initialize the client using the config dictionary
-    client = GoogleAdsClient.load_from_dict(config_dict)
+    # Initialize the GoogleAdsClient with the credentials
+    client = GoogleAdsClient(credentials=credentials, developer_token=os.environ.get('GG_DEV_TOKEN'))
     all_data = GG_Connector.get_campaign_basicstat_data(client,customer_ids,query)
     df = pd.DataFrame(all_data)
     df['segments_date'] = pd.to_datetime(df['segments_date'])
@@ -434,10 +438,12 @@ def update_google_keywordbasicstats():
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
     query = GG_Connector.get_keyword_basicstat_query(start_date,end_date)
     
-    config_dict = GG_Connector.get_config_dict()
+    scopes=['https://www.googleapis.com/auth/adwords']
+    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
-    # Initialize the client using the config dictionary
-    client = GoogleAdsClient.load_from_dict(config_dict)
+    # Initialize the GoogleAdsClient with the credentials
+    client = GoogleAdsClient(credentials=credentials, developer_token=os.environ.get('GG_DEV_TOKEN'))
     all_data = GG_Connector.get_keyword_basicstat_data(client,customer_ids,query)
     df = pd.DataFrame(all_data)
     df['segments_date'] = pd.to_datetime(df['segments_date'])
@@ -467,10 +473,12 @@ def update_google_videobasicstats():
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
     query = GG_Connector.get_video_basicstat_query(start_date,end_date)
     
-    config_dict = GG_Connector.get_config_dict()
+    scopes=['https://www.googleapis.com/auth/adwords']
+    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
-    # Initialize the client using the config dictionary
-    client = GoogleAdsClient.load_from_dict(config_dict)
+    # Initialize the GoogleAdsClient with the credentials
+    client = GoogleAdsClient(credentials=credentials, developer_token=os.environ.get('GG_DEV_TOKEN'))
     all_data = GG_Connector.get_video_basicstat_data(client,customer_ids,query)
     df = pd.DataFrame(all_data)
     df['segments_date'] = pd.to_datetime(df['segments_date'])
@@ -500,10 +508,12 @@ def update_google_videoconversionstats():
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
     query = GG_Connector.get_video_conversion_stat_query(start_date,end_date)
     
-    config_dict = GG_Connector.get_config_dict()
+    scopes=['https://www.googleapis.com/auth/adwords']
+    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
-    # Initialize the client using the config dictionary
-    client = GoogleAdsClient.load_from_dict(config_dict)
+    # Initialize the GoogleAdsClient with the credentials
+    client = GoogleAdsClient(credentials=credentials, developer_token=os.environ.get('GG_DEV_TOKEN'))
     all_data = GG_Connector.get_video_conversionstat_data(client,customer_ids,query)
     
     if len(all_data) > 0:
@@ -545,10 +555,12 @@ def update_google_videononclickstats():
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
     query = GG_Connector.get_video_nonclickstat_query(start_date,end_date)
     
-    config_dict = GG_Connector.get_config_dict()
+    scopes=['https://www.googleapis.com/auth/adwords']
+    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
-    # Initialize the client using the config dictionary
-    client = GoogleAdsClient.load_from_dict(config_dict)
+    # Initialize the GoogleAdsClient with the credentials
+    client = GoogleAdsClient(credentials=credentials, developer_token=os.environ.get('GG_DEV_TOKEN'))
     all_data = GG_Connector.get_video_nonclickstat_data(client,customer_ids,query)
     df = pd.DataFrame(all_data)
     df['segments_date'] = pd.to_datetime(df['segments_date'])
@@ -583,10 +595,12 @@ def update_google_adcrossconversionstats():
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
     query = GG_Connector.get_ad_cross_device_conversion_stat_query(start_date,end_date)
     
-    config_dict = GG_Connector.get_config_dict()
+    scopes=['https://www.googleapis.com/auth/adwords']
+    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
-    # Initialize the client using the config dictionary
-    client = GoogleAdsClient.load_from_dict(config_dict)
+    # Initialize the GoogleAdsClient with the credentials
+    client = GoogleAdsClient(credentials=credentials, developer_token=os.environ.get('GG_DEV_TOKEN'))
     all_data = GG_Connector.get_ad_cross_device_conversion_stat_data(client,customer_ids,query)
     df = pd.DataFrame(all_data)
     df['segments_date'] = pd.to_datetime(df['segments_date'])
@@ -621,10 +635,12 @@ def update_google_adgroupcrossconversionstats():
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
     query = GG_Connector.get_ad_group_cross_device_conversion_stat_query(start_date,end_date)
     
-    config_dict = GG_Connector.get_config_dict()
+    scopes=['https://www.googleapis.com/auth/adwords']
+    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
-    # Initialize the client using the config dictionary
-    client = GoogleAdsClient.load_from_dict(config_dict)
+    # Initialize the GoogleAdsClient with the credentials
+    client = GoogleAdsClient(credentials=credentials, developer_token=os.environ.get('GG_DEV_TOKEN'))
     all_data = GG_Connector.get_ad_group_cross_device_conversion_stat_data(client,customer_ids,query)
     df = pd.DataFrame(all_data)
     df['segments_date'] = pd.to_datetime(df['segments_date'])
@@ -660,10 +676,12 @@ def update_google_campaigncrossconversionstats():
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
     query = GG_Connector.get_campaign_cross_device_conversion_stat_query(start_date,end_date)
     
-    config_dict = GG_Connector.get_config_dict()
+    scopes=['https://www.googleapis.com/auth/adwords']
+    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
-    # Initialize the client using the config dictionary
-    client = GoogleAdsClient.load_from_dict(config_dict)
+    # Initialize the GoogleAdsClient with the credentials
+    client = GoogleAdsClient(credentials=credentials, developer_token=os.environ.get('GG_DEV_TOKEN'))
     all_data = GG_Connector.get_campaign_cross_device_conversion_stat_data(client,customer_ids,query)
     df = pd.DataFrame(all_data)
     df['segments_date'] = pd.to_datetime(df['segments_date'])
@@ -698,10 +716,12 @@ def update_google_keywordcrossconversionstats():
     start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
     query = GG_Connector.get_keyword_cross_device_conversion_stat_query(start_date,end_date)
     
-    config_dict = GG_Connector.get_config_dict()
+    scopes=['https://www.googleapis.com/auth/adwords']
+    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
-    # Initialize the client using the config dictionary
-    client = GoogleAdsClient.load_from_dict(config_dict)
+    # Initialize the GoogleAdsClient with the credentials
+    client = GoogleAdsClient(credentials=credentials, developer_token=os.environ.get('GG_DEV_TOKEN'))
     all_data = GG_Connector.get_keyword_cross_device_conversion_stat_data(client,customer_ids,query)
     df = pd.DataFrame(all_data)
     df['segments_date'] = pd.to_datetime(df['segments_date'])
@@ -734,10 +754,12 @@ def update_google_adgrouplabel():
     customer_ids = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Google")
 
     query = GG_Connector.get_adgroup_label_query()
-    config_dict = GG_Connector.get_config_dict()
+    scopes=['https://www.googleapis.com/auth/adwords']
+    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+    credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
-    # Initialize the client using the config dictionary
-    client = GoogleAdsClient.load_from_dict(config_dict)
+    # Initialize the GoogleAdsClient with the credentials
+    client = GoogleAdsClient(credentials=credentials, developer_token=os.environ.get('GG_DEV_TOKEN'))
     all_data = GG_Connector.get_adgroup_label_data(client,customer_ids,query)
     df = pd.DataFrame(all_data)
     

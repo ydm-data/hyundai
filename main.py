@@ -551,7 +551,6 @@ def update_google_videoconversionstats():
     return json.dumps({'success': 'Update Google VideoConversionStats Completed'}), 200
 
 
-
 @app.route('/update_google_videononclickstats', methods=['POST'])
 def update_google_videononclickstats():
     service = h_function.get_service()
@@ -783,7 +782,6 @@ def update_google_adgrouplabel():
 @app.route('/update_fb_daily', methods=['POST'])
 def update_fb_daily():
     access_token = os.environ['FBTOKEN']
-    round =  request.args.get('round')
     my_accounts = FB_Connector.get_myaccount(access_token)
     service = h_function.get_service()
     target_account = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Facebook")
@@ -802,7 +800,7 @@ def update_fb_daily():
     BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_main","rda_analytics_temp","media_facebook_main_temp",condition)
     BQ_Connector.load_data(client,"rda_analytics","media_facebook_main",ads_data)
 
-    msg = f"🔷 Media: <b>Facebook {round}</b> Executed Successfully on 📅 "
+    msg = f"🔷 Media: <b>Facebook Main</b> Executed Successfully on 📅 "
     h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Facebook Main Completed'}), 200
 

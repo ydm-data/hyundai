@@ -909,13 +909,14 @@ def check_updated_media_data():
     
     gg_AdBasics = BQ_Connector.get_recent_date(client,"segments_date", "rda_analytics", "media_google_AdBasicStats")
     gg_AdCrossDevice = BQ_Connector.get_recent_date(client,"segments_date", "rda_analytics", "media_google_AdCrossDeviceConversionStats")
+    gg_AdGroupBasics = BQ_Connector.get_recent_date(client,"segments_date", "rda_analytics", "media_google_AdGroupBasicStats")
     gg_AdGroupCrossDevice = BQ_Connector.get_recent_date(client,"segments_date", "rda_analytics", "media_google_AdGroupCrossDeviceConversionStats")
     gg_CampaignBasic = BQ_Connector.get_recent_date(client,"segments_date", "rda_analytics", "media_google_CampaignBasicStats")
     gg_CampaignCrossDevice = BQ_Connector.get_recent_date(client,"segments_date", "rda_analytics", "media_google_CampaignCrossDeviceConversionStats")
-    gg_KeywordBasic = BQ_Connector.get_recent_date(client,"segments_date", "rda_analytics", "media_google_KeywordBasicStats")
-    gg_KeywordCrossDevice = BQ_Connector.get_recent_date(client,"segments_date", "rda_analytics", "media_google_KeywordCrossDeviceConversionStats")
+    # gg_KeywordBasic = BQ_Connector.get_recent_date(client,"segments_date", "rda_analytics", "media_google_KeywordBasicStats")
+    # gg_KeywordCrossDevice = BQ_Connector.get_recent_date(client,"segments_date", "rda_analytics", "media_google_KeywordCrossDeviceConversionStats")
     gg_VideoBasicStats = BQ_Connector.get_recent_date(client,"segments_date", "rda_analytics", "media_google_VideoBasicStats")
-    gg_VideoConversoinStats = BQ_Connector.get_recent_date(client,"segments_date", "rda_analytics", "media_google_VideoConversionStats")
+    # gg_VideoConversionStats = BQ_Connector.get_recent_date(client,"segments_date", "rda_analytics", "media_google_VideoConversionStats")
     gg_VideoNonClickStats = BQ_Connector.get_recent_date(client,"segments_date", "rda_analytics", "media_google_VideoNonClickStats")
     
     tiktok_main = BQ_Connector.get_recent_date(client, "stat_time_day","rda_analytics", "media_tiktok_main")
@@ -925,19 +926,19 @@ def check_updated_media_data():
     
     # rtb_data = BQ_Connector.get_recent_date(client, "day","rda_analytics", "media_rtb_house")
     
-    # fb_main = BQ_Connector.get_recent_date(client, "date_start","rda_analytics", "media_facebook_main")
-    # fb_actions = BQ_Connector.get_recent_date(client, "date_start","rda_analytics", "media_facebook_action")
-    # fb_catalog = BQ_Connector.get_recent_date(client, "date_start","rda_analytics", "media_facebook_catalog_segment")
+    fb_main = BQ_Connector.get_recent_date(client, "date_start","rda_analytics", "media_facebook_main")
+    fb_actions = BQ_Connector.get_recent_date(client, "date_start","rda_analytics", "media_facebook_action")
+    fb_catalog = BQ_Connector.get_recent_date(client, "date_start","rda_analytics", "media_facebook_catalog_segment")
     
     # line_main = BQ_Connector.get_recent_date(client, "date","rda_analytics", "media_line")
     
-    msg1 = f"🌳 <b>Google</b> \n GG AdBasicsStats: 📅{gg_AdBasics}\n  GG AdCrossDevice: 📅{gg_AdCrossDevice}\n  GG AdGroupCrossDevice: 📅{gg_AdGroupCrossDevice}\n  GG CampaignBasicStats: 📅{gg_CampaignBasic}\n  GG CampaignCrossDevice: 📅{gg_CampaignCrossDevice}\n GG KeywordBasic: 📅{gg_KeywordBasic}\n  GG KeywordCrossDevice: 📅{gg_KeywordCrossDevice}\n  GG VideoBasicStats: 📅{gg_VideoBasicStats}\n GG VideoConversoinStats: 📅{gg_VideoConversoinStats}\n GG VideoNonClickStats: 📅{gg_VideoNonClickStats}"
+    msg1 = f"🌳 <b>Google</b> \n GG AdBasicsStats: 📅{gg_AdBasics}\n  GG AdCrossDevice: 📅{gg_AdCrossDevice}\n GG AdGroupBasicsStats: 📅{gg_AdGroupBasics}\n  GG AdGroupCrossDevice: 📅{gg_AdGroupCrossDevice}\n  GG CampaignBasicStats: 📅{gg_CampaignBasic}\n  GG CampaignCrossDevice: 📅{gg_CampaignCrossDevice}\n  GG VideoBasicStats: 📅{gg_VideoBasicStats}\n GG VideoNonClickStats: 📅{gg_VideoNonClickStats}"
     msg2 = f"🎶 <b>Tiktok</b> \n TT Main: 📅{tiktok_main}\n TT Event: 📅{tiktok_event}\n TT Page Event: 📅{tiktok_pageevent}\n TT Shop Ads: 📅{tiktok_shopads}"
     # msg3 = f"🌻 <b>RTB</b> \n RTB: 📅{rtb_data}"
-    # msg4 = f"🔷 <b>Facebook</b> \n FB Main: 📅{fb_main}\n FB Actions: 📅{fb_actions}\n FB Catalog Segment: 📅{fb_catalog}"
+    msg3 = f"🔷 <b>Facebook</b> \n FB Main: 📅{fb_main}\n FB Actions: 📅{fb_actions}\n FB Catalog Segment: 📅{fb_catalog}"
     # msg5 = f"💬 <b>Line</b> \n Line: 📅{line_main}"
     
-    h_function.send_gg_chat_noti_with_divider(msg1,msg2)
+    h_function.send_gg_chat_noti_with_divider(msg1,msg2,msg3)
     return json.dumps({'success': 'Check Media Recent Date'}), 200
 
 @app.route('/update_google_search_console', methods=['POST'])

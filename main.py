@@ -769,13 +769,14 @@ def update_google_adgrouplabel():
     all_data = GG_Connector.get_adgroup_label_data(client,customer_ids,query)
     df = pd.DataFrame(all_data)
     
-    project_id = 'hmth-448709'
-    client = bigquery.Client(project=project_id)
-    BQ_Connector.delete_data(client,"rda_analytics","media_google_AdGroupLabel")
-    BQ_Connector.load_data(client, "rda_analytics","media_google_AdGroupLabel",df)
+    if len(df) > 0:
+        project_id = 'hmth-448709'
+        client = bigquery.Client(project=project_id)
+        BQ_Connector.delete_data(client,"rda_analytics","media_google_AdGroupLabel")
+        BQ_Connector.load_data(client, "rda_analytics","media_google_AdGroupLabel",df)
 
-    msg = "🌳 Media: <b>Google AdGroupLabel</b> Executed Successfully on 📅 "
-    h_function.send_gg_chat_noti(msg)
+        msg = "🌳 Media: <b>Google AdGroupLabel</b> Executed Successfully on 📅 "
+        h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Google AdGroupLabel Completed'}), 200
 
 """" FB """

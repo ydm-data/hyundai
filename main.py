@@ -855,26 +855,26 @@ def update_fb_daily_catalog_segments():
     
     fields = FB_Connector.get_fb_catalog_fields()
     asyn_job_list = FB_Connector.get_asynjob(my_accounts, target_account, fields, 15, "ad")    
-    
-    ads_data = FB_Connector.clean_ads_catalog_segment_data(asyn_job_list)
-    
-    ads_data = ads_data[~((ads_data['catalog_segment_actions'].apply(lambda x: x == [])) & (ads_data['catalog_segment_values'].apply(lambda x: x == [])))]
-    ads_data = FB_Connector.clean_nested_catalog_segment_data(ads_data)
-    
-    ads_data['date_start'] = pd.to_datetime(ads_data['date_start'])
-    ads_data['date_stop'] = pd.to_datetime(ads_data['date_stop'])
-    ads_data['created_time'] = pd.to_datetime(ads_data['created_time'])
-    
-    project_id = 'hmth-448709'
-    client = bigquery.Client(project=project_id)
-    BQ_Connector.delete_data(client,'rda_analytics_temp', 'media_facebook_catalog_segment_temp')
-    BQ_Connector.load_data(client, 'rda_analytics_temp', 'media_facebook_catalog_segment_temp', ads_data)
-    condition = "ON (ori.date_start = temp.date_start AND ori.account_id = temp.account_id AND ori.ad_id = temp.ad_id) "
-    BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_catalog_segment","rda_analytics_temp","media_facebook_catalog_segment_temp",condition)
-    BQ_Connector.load_data(client,"rda_analytics","media_facebook_catalog_segment",ads_data)
+    if len(asyn_job_list) > 0:
+        ads_data = FB_Connector.clean_ads_catalog_segment_data(asyn_job_list)
+        
+        ads_data = ads_data[~((ads_data['catalog_segment_actions'].apply(lambda x: x == [])) & (ads_data['catalog_segment_values'].apply(lambda x: x == [])))]
+        ads_data = FB_Connector.clean_nested_catalog_segment_data(ads_data)
+        
+        ads_data['date_start'] = pd.to_datetime(ads_data['date_start'])
+        ads_data['date_stop'] = pd.to_datetime(ads_data['date_stop'])
+        ads_data['created_time'] = pd.to_datetime(ads_data['created_time'])
+        
+        project_id = 'hmth-448709'
+        client = bigquery.Client(project=project_id)
+        BQ_Connector.delete_data(client,'rda_analytics_temp', 'media_facebook_catalog_segment_temp')
+        BQ_Connector.load_data(client, 'rda_analytics_temp', 'media_facebook_catalog_segment_temp', ads_data)
+        condition = "ON (ori.date_start = temp.date_start AND ori.account_id = temp.account_id AND ori.ad_id = temp.ad_id) "
+        BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_catalog_segment","rda_analytics_temp","media_facebook_catalog_segment_temp",condition)
+        BQ_Connector.load_data(client,"rda_analytics","media_facebook_catalog_segment",ads_data)
 
-    msg = f"🔷 Media: <b>Facebook Catalog Segment</b> Executed Successfully on 📅 "
-    h_function.send_gg_chat_noti(msg)
+        msg = f"🔷 Media: <b>Facebook Catalog Segment</b> Executed Successfully on 📅 "
+        h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Facebook Catalog Segment Completed'}), 200
 
 

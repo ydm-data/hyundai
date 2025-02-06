@@ -80,8 +80,11 @@ class BQ_Connector:
                 LIMIT 1"""
         result = client.query(query).result()
         rows = list(result)
-        recent_date = rows[0][date_column].strftime('%Y-%m-%d')
-
+        if len(rows) > 0:
+            recent_date = rows[0][date_column].strftime('%Y-%m-%d')
+        else:
+            recent_date = "No Data"
+            
         return recent_date
     
     def create_view_unpivot(client,dataset_name,table_name,view_name,action_type,pivot_action_type):

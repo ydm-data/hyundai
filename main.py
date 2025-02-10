@@ -32,19 +32,21 @@ def update_tiktok_daily():
     advertiser_ids_list = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Tiktok")
     metrics_list = TT_connector.get_main_metrics()
     data = TT_connector.get_data(advertiser_ids_list,metrics_list,14)
-    data = TT_connector.convert_main_data(data)    
     
-    project_id = 'hmth-448709'
-    client = bigquery.Client(project=project_id)   
-    BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_main_temp")
-    BQ_Connector.load_data(client,"rda_analytics_temp","media_tiktok_main_temp",data)
-    
-    condition = "ON (ori.ad_id = temp.ad_id AND ori.stat_time_day = temp.stat_time_day AND ori.campaign_id = temp.campaign_id) "
-    BQ_Connector.delete_when_match(client,"rda_analytics","media_tiktok_main","rda_analytics_temp","media_tiktok_main_temp",condition)
-    BQ_Connector.load_data(client, "rda_analytics", "media_tiktok_main", data)
-    
-    msg = "🎶 Media: <b>Tiktok Main</b> Executed Successfully on 📅 "
-    h_function.send_gg_chat_noti(msg)
+    if len(data) > 0:
+        data = TT_connector.convert_main_data(data)    
+        
+        project_id = 'hmth-448709'
+        client = bigquery.Client(project=project_id)   
+        BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_main_temp")
+        BQ_Connector.load_data(client,"rda_analytics_temp","media_tiktok_main_temp",data)
+        
+        condition = "ON (ori.ad_id = temp.ad_id AND ori.stat_time_day = temp.stat_time_day AND ori.campaign_id = temp.campaign_id) "
+        BQ_Connector.delete_when_match(client,"rda_analytics","media_tiktok_main","rda_analytics_temp","media_tiktok_main_temp",condition)
+        BQ_Connector.load_data(client, "rda_analytics", "media_tiktok_main", data)
+        
+        msg = "🎶 Media: <b>Tiktok Main</b> Executed Successfully on 📅 "
+        h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Tiktok Completed'}), 200
     
     
@@ -54,21 +56,23 @@ def update_tiktok_daily_event():
     advertiser_ids_list = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Tiktok")
     metrics_list = TT_connector.get_event_metrics()
     data = TT_connector.get_data(advertiser_ids_list,metrics_list,14)
-    data = TT_connector.convert_event_data(data)
     
-    id_columns = ['currency',"campaign_id",'campaign_name',"ad_id",'ad_name','adgroup_id','adgroup_name','advertiser_id','advertiser_name','timezone',"stat_time_day"]
-    data = BQ_Connector.pivot_to_nested(data, id_columns,"event")
+    if len(data) > 0:
+        data = TT_connector.convert_event_data(data)
+        
+        id_columns = ['currency',"campaign_id",'campaign_name',"ad_id",'ad_name','adgroup_id','adgroup_name','advertiser_id','advertiser_name','timezone',"stat_time_day"]
+        data = BQ_Connector.pivot_to_nested(data, id_columns,"event")
 
-    project_id = 'hmth-448709'
-    client = bigquery.Client(project=project_id)
-    BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_event_temp")
-    BQ_Connector.load_data(client, "rda_analytics_temp","media_tiktok_event_temp",data)
-    condition = "ON (ori.ad_id = temp.ad_id AND ori.stat_time_day = temp.stat_time_day AND ori.campaign_id = temp.campaign_id) "
-    BQ_Connector.delete_when_match(client,"rda_analytics","media_tiktok_event","rda_analytics_temp","media_tiktok_event_temp",condition)
-    BQ_Connector.load_data(client, "rda_analytics", "media_tiktok_event", data)
+        project_id = 'hmth-448709'
+        client = bigquery.Client(project=project_id)
+        BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_event_temp")
+        BQ_Connector.load_data(client, "rda_analytics_temp","media_tiktok_event_temp",data)
+        condition = "ON (ori.ad_id = temp.ad_id AND ori.stat_time_day = temp.stat_time_day AND ori.campaign_id = temp.campaign_id) "
+        BQ_Connector.delete_when_match(client,"rda_analytics","media_tiktok_event","rda_analytics_temp","media_tiktok_event_temp",condition)
+        BQ_Connector.load_data(client, "rda_analytics", "media_tiktok_event", data)
 
-    msg = "🎶 Media: <b>Tiktok Event</b> Executed Successfully on 📅 "
-    h_function.send_gg_chat_noti(msg)
+        msg = "🎶 Media: <b>Tiktok Event</b> Executed Successfully on 📅 "
+        h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Tiktok Event Completed'}), 200
 
 
@@ -78,21 +82,23 @@ def update_tiktok_daily_pageevent():
     advertiser_ids_list = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Tiktok")
     metrics_list = TT_connector.get_pageevent_metrics()
     data = TT_connector.get_data(advertiser_ids_list, metrics_list,14)
-    data = TT_connector.convert_pageevent_data(data)
     
-    id_columns = ['currency',"campaign_id",'campaign_name',"ad_id",'ad_name','adgroup_id','adgroup_name','advertiser_id','advertiser_name','timezone',"stat_time_day"]
-    data = BQ_Connector.pivot_to_nested(data, id_columns,"pageevent")
-    
-    project_id = 'hmth-448709'
-    client = bigquery.Client(project=project_id)   
-    BQ_Connector.delete_data(client, "rda_analytics_temp","media_tiktok_pageevent_temp")
-    BQ_Connector.load_data(client,"rda_analytics_temp","media_tiktok_pageevent_temp",data)
-    condition = "ON (ori.ad_id = temp.ad_id AND ori.stat_time_day = temp.stat_time_day AND ori.campaign_id = temp.campaign_id) "
-    BQ_Connector.delete_when_match(client,"rda_analytics","media_tiktok_pageevent","rda_analytics_temp","media_tiktok_pageevent_temp",condition)
-    BQ_Connector.load_data(client, "rda_analytics", "media_tiktok_pageevent", data)
+    if len(data) > 0:
+        data = TT_connector.convert_pageevent_data(data)
+        
+        id_columns = ['currency',"campaign_id",'campaign_name',"ad_id",'ad_name','adgroup_id','adgroup_name','advertiser_id','advertiser_name','timezone',"stat_time_day"]
+        data = BQ_Connector.pivot_to_nested(data, id_columns,"pageevent")
+        
+        project_id = 'hmth-448709'
+        client = bigquery.Client(project=project_id)   
+        BQ_Connector.delete_data(client, "rda_analytics_temp","media_tiktok_pageevent_temp")
+        BQ_Connector.load_data(client,"rda_analytics_temp","media_tiktok_pageevent_temp",data)
+        condition = "ON (ori.ad_id = temp.ad_id AND ori.stat_time_day = temp.stat_time_day AND ori.campaign_id = temp.campaign_id) "
+        BQ_Connector.delete_when_match(client,"rda_analytics","media_tiktok_pageevent","rda_analytics_temp","media_tiktok_pageevent_temp",condition)
+        BQ_Connector.load_data(client, "rda_analytics", "media_tiktok_pageevent", data)
 
-    msg = "🎶 Media: <b>Tiktok Page Event</b> Executed Successfully on 📅 "
-    h_function.send_gg_chat_noti(msg)
+        msg = "🎶 Media: <b>Tiktok Page Event</b> Executed Successfully on 📅 "
+        h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Tiktok Page Event Completed'}), 200
 
 
@@ -102,20 +108,22 @@ def update_tiktok_daily_shopads():
     advertiser_ids_list = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Tiktok")
     metrics_list = TT_connector.get_shopads_metrics()
     data = TT_connector.get_data(advertiser_ids_list,metrics_list,14)
-    data = TT_connector.convert_shopads_data(data)
-    id_columns = ['currency',"campaign_id",'campaign_name',"ad_id",'ad_name','adgroup_id','adgroup_name','advertiser_id','advertiser_name','timezone',"stat_time_day"]
-    data = BQ_Connector.pivot_to_nested(data, id_columns,"shopads")
     
-    project_id = 'hmth-448709'
-    client = bigquery.Client(project=project_id)   
-    BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_shop_ads_temp")
-    BQ_Connector.load_data(client, "rda_analytics_temp","media_tiktok_shop_ads_temp",data)
-    condition = "ON (ori.ad_id = temp.ad_id AND ori.stat_time_day = temp.stat_time_day AND ori.campaign_id = temp.campaign_id) "
-    BQ_Connector.delete_when_match(client,"rda_analytics","media_tiktok_shop_ads","rda_analytics_temp","media_tiktok_shop_ads_temp",condition)
-    BQ_Connector.load_data(client, "rda_analytics", "media_tiktok_shop_ads", data)
+    if len(data) > 0:
+        data = TT_connector.convert_shopads_data(data)
+        id_columns = ['currency',"campaign_id",'campaign_name',"ad_id",'ad_name','adgroup_id','adgroup_name','advertiser_id','advertiser_name','timezone',"stat_time_day"]
+        data = BQ_Connector.pivot_to_nested(data, id_columns,"shopads")
+        
+        project_id = 'hmth-448709'
+        client = bigquery.Client(project=project_id)   
+        BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_shop_ads_temp")
+        BQ_Connector.load_data(client, "rda_analytics_temp","media_tiktok_shop_ads_temp",data)
+        condition = "ON (ori.ad_id = temp.ad_id AND ori.stat_time_day = temp.stat_time_day AND ori.campaign_id = temp.campaign_id) "
+        BQ_Connector.delete_when_match(client,"rda_analytics","media_tiktok_shop_ads","rda_analytics_temp","media_tiktok_shop_ads_temp",condition)
+        BQ_Connector.load_data(client, "rda_analytics", "media_tiktok_shop_ads", data)
 
-    msg = "🎶 Media: <b>Tiktok Shop Ads</b> Executed Successfully on 📅 "
-    h_function.send_gg_chat_noti(msg)
+        msg = "🎶 Media: <b>Tiktok Shop Ads</b> Executed Successfully on 📅 "
+        h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Tiktok ShopAds Completed'}), 200
         
 
@@ -128,20 +136,22 @@ def update_tiktok_lifetime_ad():
     data_level = 'AUCTION_AD'
     dimensions_list = ["ad_id"]
     data = TT_connector.get_data_lifetime(advertiser_ids_list,metrics_list,data_level,dimensions_list)
-    data = TT_connector.convert_main_data_lifetime(data)  
-    data['update_date'] = datetime.today()  
     
-    project_id = 'hmth-448709'
-    client = bigquery.Client(project=project_id)   
-    
-    BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_lifetime_ad_temp")
-    BQ_Connector.load_data(client,"rda_analytics_temp","media_tiktok_lifetime_ad_temp",data)
-    BQ_Connector.delete_when_match(client, "rda_analytics","media_tiktok_lifetime_ad","rda_analytics_temp","media_tiktok_lifetime_ad_temp",
-                                    "ON (ori.ad_id = temp.ad_id AND ori.update_date = temp.update_date AND ori.advertiser_id = temp.advertiser_id) ")
-    BQ_Connector.load_data(client,"rda_analytics","media_tiktok_lifetime_ad",data)
-    
-    msg = "⌛🎶 Media: <b>Tiktok</b> Lifetime (Ad Level) Executed Successfully on 📅 "
-    h_function.send_gg_chat_noti(msg)
+    if len(data) > 0:
+        data = TT_connector.convert_main_data_lifetime(data)  
+        data['update_date'] = datetime.today()  
+        
+        project_id = 'hmth-448709'
+        client = bigquery.Client(project=project_id)   
+        
+        BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_lifetime_ad_temp")
+        BQ_Connector.load_data(client,"rda_analytics_temp","media_tiktok_lifetime_ad_temp",data)
+        BQ_Connector.delete_when_match(client, "rda_analytics","media_tiktok_lifetime_ad","rda_analytics_temp","media_tiktok_lifetime_ad_temp",
+                                        "ON (ori.ad_id = temp.ad_id AND ori.update_date = temp.update_date AND ori.advertiser_id = temp.advertiser_id) ")
+        BQ_Connector.load_data(client,"rda_analytics","media_tiktok_lifetime_ad",data)
+        
+        msg = "⌛🎶 Media: <b>Tiktok</b> Lifetime (Ad Level) Executed Successfully on 📅 "
+        h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Tiktok Ad Lifetime Completed'}), 200
     
     
@@ -154,19 +164,21 @@ def update_tiktok_lifetime_adgroup():
     data_level = 'AUCTION_ADGROUP'
     dimensions_list = ["adgroup_id"]
     data = TT_connector.get_data_lifetime(advertiser_ids_list,metrics_list,data_level,dimensions_list)
-    data = TT_connector.convert_main_data_lifetime(data)  
-    data['update_date'] = datetime.today()  
     
-    project_id = 'hmth-448709'
-    client = bigquery.Client(project=project_id)
-    BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_lifetime_adgroup_temp")
-    BQ_Connector.load_data(client,"rda_analytics_temp","media_tiktok_lifetime_adgroup_temp",data) 
-    BQ_Connector.delete_when_match(client, "rda_analytics","media_tiktok_lifetime_adgroup","rda_analytics_temp","media_tiktok_lifetime_adgroup_temp",
-                                    "ON (ori.adgroup_id = temp.adgroup_id AND ori.update_date = temp.update_date AND ori.advertiser_id = temp.advertiser_id) ")
-    BQ_Connector.load_data(client,"rda_analytics","media_tiktok_lifetime_adgroup",data)
-    
-    msg = "⌛🎶 Media: <b>Tiktok</b> Lifetime (AdGroup Level) Executed Successfully on 📅 "
-    h_function.send_gg_chat_noti(msg)
+    if len(data) > 0:
+        data = TT_connector.convert_main_data_lifetime(data)  
+        data['update_date'] = datetime.today()  
+        
+        project_id = 'hmth-448709'
+        client = bigquery.Client(project=project_id)
+        BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_lifetime_adgroup_temp")
+        BQ_Connector.load_data(client,"rda_analytics_temp","media_tiktok_lifetime_adgroup_temp",data) 
+        BQ_Connector.delete_when_match(client, "rda_analytics","media_tiktok_lifetime_adgroup","rda_analytics_temp","media_tiktok_lifetime_adgroup_temp",
+                                        "ON (ori.adgroup_id = temp.adgroup_id AND ori.update_date = temp.update_date AND ori.advertiser_id = temp.advertiser_id) ")
+        BQ_Connector.load_data(client,"rda_analytics","media_tiktok_lifetime_adgroup",data)
+        
+        msg = "⌛🎶 Media: <b>Tiktok</b> Lifetime (AdGroup Level) Executed Successfully on 📅 "
+        h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Tiktok Adgroup Lifetime Completed'}), 200
 
     
@@ -179,19 +191,21 @@ def update_tiktok_lifetime_campaign():
     data_level = 'AUCTION_CAMPAIGN'
     dimensions_list = ["campaign_id"]
     data = TT_connector.get_data_lifetime(advertiser_ids_list,metrics_list,data_level,dimensions_list)
-    data = TT_connector.convert_main_data_lifetime(data)  
-    data['update_date'] = datetime.today()  
     
-    project_id = 'hmth-448709'
-    client = bigquery.Client(project=project_id)  
-    BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_lifetime_campaign_temp")
-    BQ_Connector.load_data(client,"rda_analytics_temp","media_tiktok_lifetime_campaign_temp",data) 
-    BQ_Connector.delete_when_match(client, "rda_analytics","media_tiktok_lifetime_campaign","rda_analytics_temp","media_tiktok_lifetime_campaign_temp",
-                                    "ON (ori.campaign_id = temp.campaign_id AND ori.update_date = temp.update_date AND ori.advertiser_id = temp.advertiser_id) ") 
-    BQ_Connector.load_data(client,"rda_analytics","media_tiktok_lifetime_campaign",data)
-    
-    msg = "⌛🎶 Media: <b>Tiktok</b> Lifetime (Campaign Level) Executed Successfully on 📅 "
-    h_function.send_gg_chat_noti(msg)
+    if len(data) > 0:
+        data = TT_connector.convert_main_data_lifetime(data)  
+        data['update_date'] = datetime.today()  
+        
+        project_id = 'hmth-448709'
+        client = bigquery.Client(project=project_id)  
+        BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_lifetime_campaign_temp")
+        BQ_Connector.load_data(client,"rda_analytics_temp","media_tiktok_lifetime_campaign_temp",data) 
+        BQ_Connector.delete_when_match(client, "rda_analytics","media_tiktok_lifetime_campaign","rda_analytics_temp","media_tiktok_lifetime_campaign_temp",
+                                        "ON (ori.campaign_id = temp.campaign_id AND ori.update_date = temp.update_date AND ori.advertiser_id = temp.advertiser_id) ") 
+        BQ_Connector.load_data(client,"rda_analytics","media_tiktok_lifetime_campaign",data)
+        
+        msg = "⌛🎶 Media: <b>Tiktok</b> Lifetime (Campaign Level) Executed Successfully on 📅 "
+        h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Tiktok Campaign Lifetime Completed'}), 200
 
     
@@ -204,19 +218,21 @@ def update_tiktok_lifetime_advertiser():
     data_level = 'AUCTION_ADVERTISER'
     dimensions_list = ["advertiser_id"]
     data = TT_connector.get_data_lifetime(advertiser_ids_list,metrics_list,data_level,dimensions_list)
-    data = TT_connector.convert_main_data_advertiser_level(data)  
-    data['update_date'] = datetime.today()  
     
-    project_id = 'hmth-448709'
-    client = bigquery.Client(project=project_id)   
-    BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_lifetime_advertiser_temp")
-    BQ_Connector.load_data(client,"rda_analytics_temp","media_tiktok_lifetime_advertiser_temp",data) 
-    BQ_Connector.delete_when_match(client, "rda_analytics","media_tiktok_lifetime_advertiser","rda_analytics_temp","media_tiktok_lifetime_advertiser_temp",
-                                    "ON (ori.advertiser_id = temp.advertiser_id AND ori.update_date = temp.update_date) ") 
-    BQ_Connector.load_data(client,"rda_analytics","media_tiktok_lifetime_advertiser",data)
-    
-    msg = "⌛🎶 Media: <b>Tiktok</b> Lifetime (Advertiser Level) Executed Successfully on 📅 "
-    h_function.send_gg_chat_noti(msg)
+    if len(data) > 0:
+        data = TT_connector.convert_main_data_advertiser_level(data)  
+        data['update_date'] = datetime.today()  
+        
+        project_id = 'hmth-448709'
+        client = bigquery.Client(project=project_id)   
+        BQ_Connector.delete_data(client,"rda_analytics_temp","media_tiktok_lifetime_advertiser_temp")
+        BQ_Connector.load_data(client,"rda_analytics_temp","media_tiktok_lifetime_advertiser_temp",data) 
+        BQ_Connector.delete_when_match(client, "rda_analytics","media_tiktok_lifetime_advertiser","rda_analytics_temp","media_tiktok_lifetime_advertiser_temp",
+                                        "ON (ori.advertiser_id = temp.advertiser_id AND ori.update_date = temp.update_date) ") 
+        BQ_Connector.load_data(client,"rda_analytics","media_tiktok_lifetime_advertiser",data)
+        
+        msg = "⌛🎶 Media: <b>Tiktok</b> Lifetime (Advertiser Level) Executed Successfully on 📅 "
+        h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Tiktok Advertiser Lifetime Completed'}), 200
 
 

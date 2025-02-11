@@ -289,7 +289,7 @@ class FB_Connector:
             'video_p25_watched_actions', 'video_p50_watched_actions', 'video_play_actions',
             'video_p75_watched_actions', 'video_p95_watched_actions', 'video_thruplay_watched_actions',
             'cost_per_outbound_click','cost_per_unique_outbound_click','outbound_clicks',
-                'outbound_clicks_ctr']] = ads_data[['spend', 'impressions', 'reach', 'clicks','cost_per_dda_countby_convs',
+            'outbound_clicks_ctr']] = ads_data[['spend', 'impressions', 'reach', 'clicks','cost_per_dda_countby_convs',
             'cost_per_inline_link_click','cost_per_inline_post_engagement',
             'cpc', 'cpm', 'cpp', 'ctr','frequency','video_p100_watched_actions',
             'video_p25_watched_actions', 'video_p50_watched_actions', 'video_play_actions',

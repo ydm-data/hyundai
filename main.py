@@ -326,7 +326,38 @@ def update_exchange_rate_idr_thb():
                   "ON (ori.date = temp.date)")
     BQ_Connector.load_data(client, "rda_analytics", "currency_exchange_rate_IDR_THB",rate_df)
     
-    msg = "💱 <b>Currency Exchange:</b> Executed Successfully on 📅 "
+    msg = "💱 <b>Currency Exchange (IDR -> THB, USD):</b> Executed Successfully on 📅 "
+    h_function.send_gg_chat_noti(msg)
+    return json.dumps({'success': 'Update Currency Exchange Completed'}), 200
+
+@app.route('/update_exchange_rate_thb_usd', methods=['POST'])
+def update_exchange_rate_thb_usd():
+    start_date_obj = datetime.now() - timedelta(days=1)
+    rate_list = []
+    while start_date_obj <= datetime.now():
+        date = start_date_obj.strftime("%Y-%m-%d")
+        start_date_obj += timedelta(days=1)
+        
+        url = f"https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@{date}/v1/currencies/thb.json"
+        response = requests.get(url)
+        temp = {
+            "date": date,
+            "idr" : response.json()['thb']['idr'],
+            "usd" : response.json()['thb']['usd']
+        }
+        rate_list.append(temp)
+        
+    rate_df = pd.DataFrame(rate_list)
+    rate_df['date'] = pd.to_datetime(rate_df['date'])
+    
+    client = bigquery.Client()
+    BQ_Connector.delete_data(client, "rda_analytics_temp", "currency_exchange_rate_THB_USD_temp")
+    BQ_Connector.load_data(client, "rda_analytics_temp", "currency_exchange_rate_THB_USD_temp",rate_df)
+    BQ_Connector.delete_when_match(client,"rda_analytics", "currency_exchange_rate_THB_USD","rda_analytics_temp", "currency_exchange_rate_THB_USD_temp",
+                  "ON (ori.date = temp.date)")
+    BQ_Connector.load_data(client, "rda_analytics", "currency_exchange_rate_THB_USD",rate_df)
+    
+    msg = "💱 <b>Currency Exchange (THB -> USD, IDR):</b> Executed Successfully on 📅 "
     h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Currency Exchange Completed'}), 200
 

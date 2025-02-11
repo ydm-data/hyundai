@@ -222,8 +222,7 @@ class FB_Connector:
                 "cost_per_outbound_click": cost_per_outbound_click,
                 "cost_per_unique_outbound_click" : cost_per_unique_outbound_click,
                 "outbound_clicks" : outbound_clicks,
-                "outbound_clicks_ctr" : outbound_clicks_ctr,
-                "wish_bid" : each_record.get('wish_bid',None)
+                "outbound_clicks_ctr" : outbound_clicks_ctr
             }
             
             ads_data_list.append(temp_data)
@@ -289,13 +288,13 @@ class FB_Connector:
             'cpc', 'cpm', 'cpp', 'ctr','frequency','video_p100_watched_actions',
             'video_p25_watched_actions', 'video_p50_watched_actions', 'video_play_actions',
             'video_p75_watched_actions', 'video_p95_watched_actions', 'video_thruplay_watched_actions',
-            'wish_bid','cost_per_outbound_click','cost_per_unique_outbound_click','outbound_clicks',
+            'cost_per_outbound_click','cost_per_unique_outbound_click','outbound_clicks',
                 'outbound_clicks_ctr']] = ads_data[['spend', 'impressions', 'reach', 'clicks','cost_per_dda_countby_convs',
             'cost_per_inline_link_click','cost_per_inline_post_engagement',
             'cpc', 'cpm', 'cpp', 'ctr','frequency','video_p100_watched_actions',
             'video_p25_watched_actions', 'video_p50_watched_actions', 'video_play_actions',
             'video_p75_watched_actions', 'video_p95_watched_actions', 'video_thruplay_watched_actions',
-            'wish_bid','cost_per_outbound_click','cost_per_unique_outbound_click','outbound_clicks','outbound_clicks_ctr']].astype(float)
+            'cost_per_outbound_click','cost_per_unique_outbound_click','outbound_clicks','outbound_clicks_ctr']].astype(float)
             
         ads_data['created_time'] = pd.to_datetime(ads_data['created_time'])
         ads_data['date_start'] = pd.to_datetime(ads_data['date_start'])
@@ -311,12 +310,12 @@ class FB_Connector:
                 AdsInsights.Field.converted_product_quantity,AdsInsights.Field.converted_product_value,AdsInsights.Field.cost_per_2_sec_continuous_video_view,
                 AdsInsights.Field.cost_per_ad_click,AdsInsights.Field.cost_per_conversion,AdsInsights.Field.cost_per_dda_countby_convs,
                 AdsInsights.Field.cost_per_estimated_ad_recallers,AdsInsights.Field.cost_per_inline_link_click,AdsInsights.Field.date_start,
-                AdsInsights.Field.cost_per_one_thousand_ad_impression,AdsInsights.Field.cpc,AdsInsights.Field.cpm,AdsInsights.Field.cpp,AdsInsights.Field.ctr,AdsInsights.Field.created_time,
+                AdsInsights.Field.cpc,AdsInsights.Field.cpm,AdsInsights.Field.cpp,AdsInsights.Field.ctr,AdsInsights.Field.created_time,
                 AdsInsights.Field.date_stop,AdsInsights.Field.frequency,AdsInsights.Field.purchase_roas,AdsInsights.Field.video_continuous_2_sec_watched_actions,
                 AdsInsights.Field.video_p100_watched_actions,AdsInsights.Field.video_p25_watched_actions,AdsInsights.Field.video_p50_watched_actions,AdsInsights.Field.video_p75_watched_actions,
                 AdsInsights.Field.video_p95_watched_actions,AdsInsights.Field.video_play_retention_0_to_15s_actions,
                 AdsInsights.Field.video_play_retention_20_to_60s_actions,AdsInsights.Field.video_play_retention_graph_actions,
-                AdsInsights.Field.video_time_watched_actions,AdsInsights.Field.wish_bid, 
+                AdsInsights.Field.video_time_watched_actions,
                 AdsInsights.Field.cost_per_outbound_click,AdsInsights.Field.cost_per_unique_outbound_click,AdsInsights.Field.outbound_clicks,AdsInsights.Field.outbound_clicks_ctr
         ]
         return fields

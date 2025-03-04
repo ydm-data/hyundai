@@ -22,6 +22,8 @@ from helper_function import h_function
 from google.oauth2 import service_account
 from google.ads.googleads.client import GoogleAdsClient
 
+logging.basicConfig(level=logging.INFO)
+
 app = Flask(__name__)
 
 """ TIKTOK MEDIA API """
@@ -1011,24 +1013,30 @@ def update_google_search_console():
 
         dateStartFormated = dateNowBack10Days.strftime('%Y-%m-%d')
         dateEndFOrmated = dateNowBack3Days.strftime('%Y-%m-%d')
-
-        start_date = dateStartFormated
-        end_date = dateEndFOrmated
         dimensions = ['date', 'country', 'device', 'query']
 
-        data = GG_Connector.query_search_analytics(service, site, start_date, end_date, dimensions)
+        data = GG_Connector.query_search_analytics(service, site, dateStartFormated, dateEndFOrmated, dimensions)
+
+        logging.info(f"Data: {data}")
+        logging.info(f"Type of data: {type(data)}")
 
         if 'rows' in data:
+            logging.info("In if data")
             listData = data['rows']
             transformed_data = GG_Connector.transform_data(listData, site)
             df = pd.DataFrame(transformed_data)
             df['date'] = pd.to_datetime(df['date'])
             client = bigquery.Client(project="hmth-448709")
             BQ_Connector.delete_data(client,tempDataset,tempTable)
+            logging.info("Delete temp Done")
             BQ_Connector.load_data(client,tempDataset,tempTable,df)
+            logging.info("Load temp Done")
             condition = "ON ori.date = temp.date AND ori.url = temp.url AND ori.country = temp.country AND ori.device = temp.device AND ori.keyword = temp.keyword "
             BQ_Connector.delete_when_match(client,oriDataset,oriTable,tempDataset,tempTable,condition)
+            logging.info("Delete temp  match Done")
             BQ_Connector.load_data(client,oriDataset,oriTable,df)
+
+            logging.info("Load Done")
         
             msg = f"🌳 Content: <b>Google Search Console</b> Executed Successfully on 📅 "
             notires, noticode = h_function.send_gg_chat_noti(msg)

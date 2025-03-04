@@ -1183,7 +1183,7 @@ class GG_Connector:
             'startDate': start_date,
             'endDate': end_date,
             'dimensions': dimensions,
-            'rowLimit': 1000
+            'rowLimit': 5000
         }
         data = service.searchanalytics().query(siteUrl=site_url, body=request).execute()
         return data

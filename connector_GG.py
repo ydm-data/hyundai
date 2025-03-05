@@ -1183,12 +1183,27 @@ class GG_Connector:
             'startDate': start_date,
             'endDate': end_date,
             'dimensions': dimensions,
-            'rowLimit': 5000
+            'rowLimit': 25000
         }
         data = service.searchanalytics().query(siteUrl=site_url, body=request).execute()
         return data
     
-    def transform_data(records, url=None):
+    def transform_data_main(records, url=None):
+        transformed_records = []
+        for record in records:
+            transformed_records.append({
+                "date": record['keys'][0],
+                "url": url,
+                "country": record['keys'][1],
+                "device": record['keys'][2],
+                "clicks": record['clicks'],
+                "impressions": record['impressions'],
+                "ctr": record['ctr'],
+                "position": record['position']
+            })
+        return transformed_records
+    
+    def transform_data_keyword(records, url=None):
         transformed_records = []
         for record in records:
             transformed_records.append({
@@ -1197,11 +1212,10 @@ class GG_Connector:
                 "country": record['keys'][1],
                 "device": record['keys'][2],
                 "keyword": record['keys'][3],
-                "stat": {
-                    "clicks": record['clicks'],
-                    "impressions": record['impressions'],
-                    "ctr": record['ctr'],
-                    "position": record['position']
-                }
+                "clicks": record['clicks'],
+                "impressions": record['impressions'],
+                "ctr": record['ctr'],
+                "position": record['position']
             })
         return transformed_records
+        

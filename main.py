@@ -994,13 +994,19 @@ def check_updated_media_data():
 def update_google_search_console():
     oriDataset = "rda_analytics"
     tempDataset = "rda_analytics_temp"
-    oriTable = "google_google_search_console"
-    tempTable = "google_google_search_console_temp"
+
+    oriTable_main = "google_google_search_console_main"
+    tempTable_main = "google_google_search_console_main_temp"
+    
+    oriTable_keyword = "google_google_search_console_keyword"
+    tempTable_keyword = "google_google_search_console_keyword_temp"
+
 
     site = "https://www.hyundai.com/th/"
 
 
     try:
+        #Keyword
         scopes=['https://www.googleapis.com/auth/webmasters.readonly']
         service_account_info = json.loads(os.environ.get("search-console-account"))
         creds = Credentials.from_service_account_info(service_account_info, scopes=scopes)
@@ -1013,28 +1019,51 @@ def update_google_search_console():
 
         dateStartFormated = dateNowBack10Days.strftime('%Y-%m-%d')
         dateEndFOrmated = dateNowBack3Days.strftime('%Y-%m-%d')
-        dimensions = ['date', 'country', 'device', 'query']
 
-        data = GG_Connector.query_search_analytics(service, site, dateStartFormated, dateEndFOrmated, dimensions)
+        dimensions_main = ['date', 'country', 'device']
+        dimensions_keyword = ['date', 'country', 'device', 'query']
 
-        logging.info(f"Data: {data}")
-        logging.info(f"Type of data: {type(data)}")
+        data = GG_Connector.query_search_analytics(service, site, dateStartFormated, dateEndFOrmated, dimensions_keyword)
+
+        main = GG_Connector.query_search_analytics(service, site, dateStartFormated, dateEndFOrmated, dimensions_main)
 
         if 'rows' in data:
             logging.info("In if data")
             listData = data['rows']
-            transformed_data = GG_Connector.transform_data(listData, site)
+            transformed_data = GG_Connector.transform_data_keyword(listData, site)
             df = pd.DataFrame(transformed_data)
             df['date'] = pd.to_datetime(df['date'])
             client = bigquery.Client(project="hmth-448709")
-            BQ_Connector.delete_data(client,tempDataset,tempTable)
+            BQ_Connector.delete_data(client,tempDataset,tempTable_keyword)
             logging.info("Delete temp Done")
-            BQ_Connector.load_data(client,tempDataset,tempTable,df)
+            BQ_Connector.load_data(client,tempDataset,tempTable_keyword,df)
             logging.info("Load temp Done")
             condition = "ON ori.date = temp.date AND ori.url = temp.url AND ori.country = temp.country AND ori.device = temp.device AND ori.keyword = temp.keyword "
-            BQ_Connector.delete_when_match(client,oriDataset,oriTable,tempDataset,tempTable,condition)
+            BQ_Connector.delete_when_match(client,oriDataset,oriTable_keyword,tempDataset,tempTable_keyword,condition)
             logging.info("Delete temp  match Done")
-            BQ_Connector.load_data(client,oriDataset,oriTable,df)
+            BQ_Connector.load_data(client,oriDataset,oriTable_keyword,df)
+
+            logging.info("Load Done")
+        
+            msg = f"🌳 Content: <b>Google Search Console</b> Executed Successfully on 📅 "
+            notires, noticode = h_function.send_gg_chat_noti(msg)
+            return json.dumps({'success': msg}), 200
+        
+        if 'rows' in main:
+            logging.info("In if main")
+            listMain = main['rows']
+            transformed_data_main = GG_Connector.transform_data_main(listMain, site)
+            df_main = pd.DataFrame(transformed_data_main)
+            df_main['date'] = pd.to_datetime(df_main['date'])
+            client = bigquery.Client(project="hmth-448709")
+            BQ_Connector.delete_data(client,tempDataset,tempTable_main)
+            logging.info("Delete temp Done")
+            BQ_Connector.load_data(client,tempDataset,tempTable_main,df_main)
+            logging.info("Load temp Done")
+            condition = "ON ori.date = temp.date AND ori.url = temp.url AND ori.country = temp.country AND ori.device = temp.device "
+            BQ_Connector.delete_when_match(client,oriDataset,oriTable_main,tempDataset,tempTable_main,condition)
+            logging.info("Delete temp  match Done")
+            BQ_Connector.load_data(client,oriDataset,oriTable_main,df_main)
 
             logging.info("Load Done")
         
@@ -1046,6 +1075,8 @@ def update_google_search_console():
                 
     except Exception as e:
         logging.error(e)
+        msgError = f"🌳 Content: <b>Google Search Console</b> Executed Google Search console Error on 📅 "
+        notires, noticode = h_function.send_gg_chat_noti(msgError)
         return json.dumps({'error': f"{e}"}), 500
     
 if __name__ == "__main__":

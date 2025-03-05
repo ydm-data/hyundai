@@ -455,24 +455,32 @@ class TT_connector:
         project_id = "hmth-448709"
         dataset_id = "rda_analytics"
         table = "media_tiktok_ad_info"
-        target_table = "media_tiktok_video_ads_info"
         
         source_query = f"""
         SELECT DISTINCT video_id
         FROM `{project_id}.{dataset_id}.{table}`
         WHERE advertiser_id = '{advertiser_id}' AND video_id IS NOT NULL
         """
-        target_query = f"""
-        SELECT DISTINCT
-        video_id
-        FROM `{project_id}.{dataset_id}.{target_table}`
-        """
+
         video_id = client.query(source_query).to_dataframe()
-        to_delete_video_id = client.query(target_query).to_dataframe()
         video_id_list = video_id['video_id'].to_list()
-        to_delete_video_id_list = to_delete_video_id['video_id'].to_list()
-        video_id_list_target = [item for item in video_id_list  if item not in to_delete_video_id_list]
-        return video_id_list_target
+        return video_id_list
+    
+    def get_item_id_video_list(client, advertiser_id):
+        project_id = "hmth-448709"
+        dataset_id = "rda_analytics"
+        table = "media_tiktok_ad_info"
+        
+        source_query = f"""
+        SELECT DISTINCT tiktok_item_id
+        FROM `{project_id}.{dataset_id}.{table}`
+        WHERE advertiser_id = '{advertiser_id}' AND tiktok_item_id IS NOT NULL
+        """
+
+        video_id = client.query(source_query).to_dataframe()
+        tiktok_item_id_list = video_id['tiktok_item_id'].to_list()
+        return tiktok_item_id_list
+    
     
     def get_all_video(video_id_list_target,advertiser_id,access_token):
         all_video_df = pd.DataFrame()

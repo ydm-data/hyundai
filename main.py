@@ -906,7 +906,7 @@ def update_fb_adcreative():
     target_row = df.merge(adcreative_df, on=df.columns.tolist(), how='left', indicator=True)
     target_df = target_row[target_row['_merge']=="left_only"]
     
-    AdCreative_list = FB_Connector.get_adcreative_from_ad_id(target_df)
+    AdCreative_list = FB_Connector.get_adcreative_from_ad_id(access_token,target_df)
     adcreative_df = pd.DataFrame(AdCreative_list)
     merged_df = pd.merge(df,adcreative_df,how="right",on=['account_id','ad_id'])
     

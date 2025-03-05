@@ -520,7 +520,8 @@ class FB_Connector:
         df = query_job.to_dataframe()
         return df
     
-    def get_adcreative_from_ad_id(target_df):
+    def get_adcreative_from_ad_id(access_token,target_df):
+        FacebookAdsApi.init(access_token=access_token)
         AdCreative_list = []
         index = 0
         for ad_id in target_df['ad_id'][0:]:

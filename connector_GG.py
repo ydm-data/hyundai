@@ -1169,3 +1169,53 @@ class GG_Connector:
             "use_proto_plus": True
         }
         return config_dict
+    
+    def list_sites(service):
+        listSite = []
+        sites = service.sites().list().execute()
+        for site in sites.get('siteEntry', []):
+            listSite.append(site['siteUrl'])
+        
+        return listSite
+    
+    def query_search_analytics(service, site_url, start_date, end_date, dimensions):
+        request = {
+            'startDate': start_date,
+            'endDate': end_date,
+            'dimensions': dimensions,
+            'rowLimit': 25000
+        }
+        data = service.searchanalytics().query(siteUrl=site_url, body=request).execute()
+        return data
+    
+    def transform_data_main(records, url=None):
+        transformed_records = []
+        for record in records:
+            transformed_records.append({
+                "date": record['keys'][0],
+                "url": url,
+                "country": record['keys'][1],
+                "device": record['keys'][2],
+                "clicks": record['clicks'],
+                "impressions": record['impressions'],
+                "ctr": record['ctr'],
+                "position": record['position']
+            })
+        return transformed_records
+    
+    def transform_data_keyword(records, url=None):
+        transformed_records = []
+        for record in records:
+            transformed_records.append({
+                "date": record['keys'][0],
+                "url": url,
+                "country": record['keys'][1],
+                "device": record['keys'][2],
+                "keyword": record['keys'][3],
+                "clicks": record['clicks'],
+                "impressions": record['impressions'],
+                "ctr": record['ctr'],
+                "position": record['position']
+            })
+        return transformed_records
+        

@@ -22,6 +22,8 @@ from helper_function import h_function
 from google.oauth2 import service_account
 from google.ads.googleads.client import GoogleAdsClient
 
+logging.basicConfig(level=logging.INFO)
+
 app = Flask(__name__)
 
 """ TIKTOK MEDIA API """
@@ -990,116 +992,92 @@ def check_updated_media_data():
 
 @app.route('/update_google_search_console', methods=['POST'])
 def update_google_search_console():
+    oriDataset = "rda_analytics"
+    tempDataset = "rda_analytics_temp"
+
+    oriTable_main = "google_google_search_console_main"
+    tempTable_main = "google_google_search_console_main_temp"
     
+    oriTable_keyword = "google_google_search_console_keyword"
+    tempTable_keyword = "google_google_search_console_keyword_temp"
+
+
+    site = "https://www.hyundai.com/th/"
+
+
     try:
+        #Keyword
         scopes=['https://www.googleapis.com/auth/webmasters.readonly']
         service_account_info = json.loads(os.environ.get("search-console-account"))
         creds = Credentials.from_service_account_info(service_account_info, scopes=scopes)
         service = build('searchconsole', 'v1', credentials=creds)
 
-        schema = [
-            bigquery.SchemaField("date", "DATETIME"),
-            bigquery.SchemaField("url", "STRING"),
-            bigquery.SchemaField("country", "STRING"),
-            bigquery.SchemaField("device", "STRING"),
-            bigquery.SchemaField("keyword", "STRING"),
-            bigquery.SchemaField("stat", "RECORD", fields=[
-                bigquery.SchemaField("clicks", "INTEGER"),
-                bigquery.SchemaField("impressions", "INTEGER"),
-                bigquery.SchemaField("ctr", "FLOAT"),
-                bigquery.SchemaField("position", "FLOAT"),
-            ]),
-        ]
-
-        def list_sites():
-            listSite = []
-            sites = service.sites().list().execute()
-            for site in sites.get('siteEntry', []):
-                listSite.append(site['siteUrl'])
-            
-            return listSite
-
-        def query_search_analytics(site_url, start_date, end_date, dimensions):
-            request = {
-                'startDate': start_date,
-                'endDate': end_date,
-                'dimensions': dimensions,
-                'rowLimit': 1000
-            }
-            data = service.searchanalytics().query(siteUrl=site_url, body=request).execute()
-            return data
-        
-        def transform_data(records, url=None):
-            transformed_records = []
-            for record in records:
-                transformed_records.append({
-                    "date": record['keys'][0],
-                    "url": url,
-                    "country": record['keys'][1],
-                    "device": record['keys'][2],
-                    "keyword": record['keys'][3],
-                    "stat": {
-                        "clicks": record['clicks'],
-                        "impressions": record['impressions'],
-                        "ctr": record['ctr'],
-                        "position": record['position']
-                    }
-                })
-            return transformed_records
-        
-        table_ref = "hmth-448709.rda_analytics.google_google_search_console"
-        listSite = list_sites()
         bangkok_tz = pytz.timezone('Asia/Bangkok')
         dateNow = datetime.now(bangkok_tz)
-        dateNowBack3Days = dateNow - timedelta(days=4)
-        dateNowBack3DaysFOrmated = dateNowBack3Days.strftime('%Y-%m-%d')
-        for site in listSite:
-            start_date = dateNowBack3DaysFOrmated
-            end_date = dateNowBack3DaysFOrmated
-            dimensions = ['date', 'country', 'device', 'query']
-            data = query_search_analytics(site, start_date, end_date, dimensions)
-            print(data)
-            print(type(data))
-            try:
-                if data['rows']:
-                    print("In rows")
-                    listData = data['rows']
-                    transformed_data = transform_data(listData, site)
-                    print("Transformed data done")
+        dateNowBack3Days = dateNow - timedelta(days=3)
+        dateNowBack10Days = dateNow - timedelta(days=10)
 
-                    client = bigquery.Client(project="hmth-448709")
-                    table = bigquery.Table("hmth-448709.rda_analytics.google_google_search_console", schema=schema)
-                    table.time_partitioning = bigquery.TimePartitioning(
-                        type_=bigquery.TimePartitioningType.DAY,
-                        field="date"
-                    )
-                    table.clustering_fields = ["url", "country", "device"]
+        dateStartFormated = dateNowBack10Days.strftime('%Y-%m-%d')
+        dateEndFOrmated = dateNowBack3Days.strftime('%Y-%m-%d')
 
-                    try:
-                        client.get_table(table_ref)
-                        print("Get table")
-                    except:
-                        table = client.create_table(table)
-                        print("Create table")
-                        
-                    errors = client.insert_rows_json(table_ref, transformed_data)
-                    print("Insert table")
+        dimensions_main = ['date', 'country', 'device']
+        dimensions_keyword = ['date', 'country', 'device', 'query']
 
-                    if errors:
-                        print(f"Errors occurred while inserting rows: {errors}")
-                    else:
-                        print("Data successfully loaded into BigQuery!")
+        data = GG_Connector.query_search_analytics(service, site, dateStartFormated, dateEndFOrmated, dimensions_keyword)
+
+        main = GG_Connector.query_search_analytics(service, site, dateStartFormated, dateEndFOrmated, dimensions_main)
+
+        if 'rows' in data:
+            logging.info("In if data")
+            listData = data['rows']
+            transformed_data = GG_Connector.transform_data_keyword(listData, site)
+            df = pd.DataFrame(transformed_data)
+            df['date'] = pd.to_datetime(df['date'])
+            client = bigquery.Client(project="hmth-448709")
+            BQ_Connector.delete_data(client,tempDataset,tempTable_keyword)
+            logging.info("Delete temp Done")
+            BQ_Connector.load_data(client,tempDataset,tempTable_keyword,df)
+            logging.info("Load temp Done")
+            condition = "ON ori.date = temp.date AND ori.url = temp.url AND ori.country = temp.country AND ori.device = temp.device AND ori.keyword = temp.keyword "
+            BQ_Connector.delete_when_match(client,oriDataset,oriTable_keyword,tempDataset,tempTable_keyword,condition)
+            logging.info("Delete temp  match Done")
+            BQ_Connector.load_data(client,oriDataset,oriTable_keyword,df)
+
+            logging.info("Load Done")
+        
+            msg = f"🌳 Content: <b>Google Search Console</b> Executed Successfully on 📅 "
+            notires, noticode = h_function.send_gg_chat_noti(msg)
+            return json.dumps({'success': msg}), 200
+        
+        if 'rows' in main:
+            logging.info("In if main")
+            listMain = main['rows']
+            transformed_data_main = GG_Connector.transform_data_main(listMain, site)
+            df_main = pd.DataFrame(transformed_data_main)
+            df_main['date'] = pd.to_datetime(df_main['date'])
+            client = bigquery.Client(project="hmth-448709")
+            BQ_Connector.delete_data(client,tempDataset,tempTable_main)
+            logging.info("Delete temp Done")
+            BQ_Connector.load_data(client,tempDataset,tempTable_main,df_main)
+            logging.info("Load temp Done")
+            condition = "ON ori.date = temp.date AND ori.url = temp.url AND ori.country = temp.country AND ori.device = temp.device "
+            BQ_Connector.delete_when_match(client,oriDataset,oriTable_main,tempDataset,tempTable_main,condition)
+            logging.info("Delete temp  match Done")
+            BQ_Connector.load_data(client,oriDataset,oriTable_main,df_main)
+
+            logging.info("Load Done")
+        
+            msg = f"🌳 Content: <b>Google Search Console</b> Executed Successfully on 📅 "
+            notires, noticode = h_function.send_gg_chat_noti(msg)
+            return json.dumps({'success': msg}), 200
+
+        return json.dumps({'message': "no data"}), 200
                 
-                    return json.dumps({'success': 'Check Media Recent Date'}), 200
-                else:
-                    print("Out rows")
-                    return json.dumps({'No Data': f"No data for site:"}), 200
-            except Exception as e:
-                logging.error(e)
-                return json.dumps({'error': f"{e}"}), 500
     except Exception as e:
         logging.error(e)
+        msgError = f"🌳 Content: <b>Google Search Console</b> Executed Google Search console Error on 📅 "
+        notires, noticode = h_function.send_gg_chat_noti(msgError)
         return json.dumps({'error': f"{e}"}), 500
-
+    
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

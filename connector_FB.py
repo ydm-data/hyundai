@@ -1,6 +1,7 @@
 import os
 import ast
 import time
+import random
 import requests
 import numpy as np
 import pandas as pd
@@ -8,6 +9,7 @@ from datetime import datetime, timedelta, timezone, date
 
 from facebook_business.adobjects.user import User
 from facebook_business.adobjects.page import Page
+from facebook_business.adobjects.ad import Ad
 from facebook_business.adobjects.adaccount import AdAccount
 from facebook_business.adobjects.adsinsights import AdsInsights
 from facebook_business.adobjects.adreportrun import AdReportRun
@@ -473,3 +475,71 @@ class FB_Connector:
             lambda row: [{'locale': locale, 'value': value} for locale, value in row.items()] if isinstance(row, dict) else []
         )
         return pivoted_df
+    
+    def fetch_ad_creatives(ad_id):
+        # This function fetches creatives for a single ad_id with retry logic and exponential backoff
+        retry_attempts = 5
+        for attempt in range(retry_attempts):
+            creatives = Ad(ad_id).get_ad_creatives(fields=[
+                'id', 'account_id', 'actor_id', 'adlabels', 
+                'authorization_category', 'auto_update', 'body','branded_content_sponsor_page_id',
+                'bundle_folder_id', 'categorization_criteria', 'category_media_source', 'collaborative_ads_lsb_image_bank_id',
+                'creative_sourcing_spec', 'degrees_of_freedom_spec', 'destination_set_id', 'dynamic_ad_voice',
+                'effective_authorization_category', 'effective_instagram_media_id', 'effective_instagram_story_id', 
+                'effective_object_story_id', 'enable_direct_install', 'enable_launch_instant_app', 
+                'id', 'image_crops', 'image_hash', 'image_url', 'instagram_actor_id',
+                'instagram_permalink_url', 'instagram_story_id', 'instagram_user_id', 'interactive_components_spec',
+                'link_deep_link_url', 'link_destination_display_url', 'name',
+                'object_story_id', 'object_type', 'object_url', 'omnichannel_link_spec',
+                'photo_album_source_object_story_id', 'place_page_set_id', 'platform_customizations', 'playable_asset_id',
+                'portrait_customizations', 'status',
+                'template_url', 'template_url_spec', 'thumbnail_id', 'thumbnail_url', 'title', 'url_tags', 
+                'use_page_actor_override', 'video_id', 'image_file', 'is_dco_internal'
+            ], params={"thumbnail_height":500,"thumbnail_width":500})
+            return creatives
+        
+    def get_all_ad_data(client,account_ids):
+        query = f"""
+            SELECT distinct account_id,account_name,campaign_id,campaign_name,adset_id,adset_name,ad_id,ad_name 
+            FROM `hmth-448709.rda_analytics.media_facebook` 
+            WHERE account_id IN ({account_ids})
+        """
+
+        query_job = client.query(query)
+        df = query_job.to_dataframe()
+        return df
+    
+    def get_all_adcreative_data(client,account_ids):
+        query = f"""
+            SELECT distinct account_id,account_name,campaign_id,campaign_name,adset_id,adset_name,ad_id,ad_name 
+            FROM `hmth-448709.rda_analytics.media_facebook_adcreative` 
+            WHERE account_id IN ({account_ids})
+        """
+
+        query_job = client.query(query)
+        df = query_job.to_dataframe()
+        return df
+    
+    def get_adcreative_from_ad_id(target_df):
+        AdCreative_list = []
+        index = 0
+        for ad_id in target_df['ad_id'][0:]:
+            if ad_id.isdigit():
+                print(ad_id, end=": ")
+                print(index, end=",")
+                # Fetch the ad creatives, with retry and exponential backoff in case of rate limit
+                try:
+                    creatives = FB_Connector.fetch_ad_creatives(ad_id)
+                except Exception as e:
+                    pass
+                
+                if creatives:
+                    for creative in creatives:
+                        creative_data = creative.export_all_data()
+                        creative_data['ad_id'] = ad_id
+                        AdCreative_list.append(creative_data)
+
+                index += 1
+                # Add a random delay to reduce the likelihood of hitting rate limits
+                time.sleep(random.uniform(1, 3))
+        return AdCreative_list

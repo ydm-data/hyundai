@@ -893,7 +893,36 @@ def update_fb_daily_action():
     h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Facebook Actions Completed'}), 200
 
+@app.route('/update_fb_adcreative', methods=['POST'])
+def update_fb_adcreative():
+    access_token = os.environ['FBTOKEN']
+    service = h_function.get_service()
+    target_accounts = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Facebook")
+    target_accounts_str = ", ".join(f"'{target_account}'" for target_account in target_accounts)
+    
+    client = bigquery.Client()
+    df = FB_Connector.get_all_ad_data(client,target_accounts_str)
+    adcreative_df = FB_Connector.get_all_adcreative_data(client,target_accounts_str)
+    target_row = df.merge(adcreative_df, on=df.columns.tolist(), how='left', indicator=True)
+    target_df = target_row[target_row['_merge']=="left_only"]
+    
+    AdCreative_list = FB_Connector.get_adcreative_from_ad_id(access_token,target_df)
+    adcreative_df = pd.DataFrame(AdCreative_list)
+    merged_df = pd.merge(df,adcreative_df,how="right",on=['account_id','ad_id'])
+    
+    project_id = 'hmth-448709'
+    client = bigquery.Client(project=project_id)
+    BQ_Connector.delete_data(client,'rda_analytics_temp', 'media_facebook_adcreative_temp')
+    BQ_Connector.load_data(client, 'rda_analytics_temp', 'media_facebook_adcreative_temp', merged_df)
+    condition = "ON ori.id = temp.id AND ori.ad_id = temp.ad_id AND ori.account_id = temp.account_id "
+    BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_adcreative","rda_analytics_temp","media_facebook_adcreative_temp",condition)
+    BQ_Connector.load_data(client,"rda_analytics","media_facebook_adcreative",merged_df)
 
+    msg = f"🔷 Media: <b>Facebook AdCreatives</b> Executed Successfully on 📅 "
+    h_function.send_gg_chat_noti(msg)
+    return json.dumps({'success': 'Update Facebook AdCreatives Completed'}), 200
+    
+    
 @app.route('/update_fb_daily_catalog_segments', methods=['POST'])
 def update_fb_daily_catalog_segments():
     access_token = os.environ['FBTOKEN']

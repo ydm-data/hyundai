@@ -1001,6 +1001,12 @@ def update_google_search_console():
     oriTable_keyword = "google_google_search_console_keyword"
     tempTable_keyword = "google_google_search_console_keyword_temp"
 
+    oriTable_page = "google_google_search_console_page"
+    tempTable_page = "google_google_search_console_page_temp"
+
+    oriTable_keyword_page = "google_google_search_console_keyword_page"
+    tempTable_keyword_page = "google_google_search_console_keyword_page_temp"
+
 
     site = "https://www.hyundai.com/th/"
 
@@ -1022,10 +1028,14 @@ def update_google_search_console():
 
         dimensions_main = ['date', 'country', 'device']
         dimensions_keyword = ['date', 'country', 'device', 'query']
+        dimensions_page = ['date', 'page']
+        dimensions_keyword_page = ['date', 'country', 'device', 'query', 'page']
 
         data = GG_Connector.query_search_analytics(service, site, dateStartFormated, dateEndFOrmated, dimensions_keyword)
-
         main = GG_Connector.query_search_analytics(service, site, dateStartFormated, dateEndFOrmated, dimensions_main)
+
+        page = GG_Connector.query_search_analytics(service, site, dateStartFormated, dateEndFOrmated, dimensions_page)
+        keyword_page = GG_Connector.query_search_analytics(service, site, dateStartFormated, dateEndFOrmated, dimensions_keyword_page)
 
         if 'rows' in data:
             logging.info("In if data")
@@ -1045,9 +1055,9 @@ def update_google_search_console():
 
             logging.info("Load Done")
         
-            msg = f"🌳 Content: <b>Google Search Console</b> Executed Successfully on 📅 "
+            msg = f"🌳 Content: <b>Google Search Console [Keyword]</b> Executed Successfully on 📅 "
             notires, noticode = h_function.send_gg_chat_noti(msg)
-            return json.dumps({'success': msg}), 200
+            # return json.dumps({'success': msg}), 200
         
         if 'rows' in main:
             logging.info("In if main")
@@ -1067,9 +1077,51 @@ def update_google_search_console():
 
             logging.info("Load Done")
         
-            msg = f"🌳 Content: <b>Google Search Console</b> Executed Successfully on 📅 "
+            msg = f"🌳 Content: <b>Google Search Console [Main]</b> Executed Successfully on 📅 "
+            notires, noticode = h_function.send_gg_chat_noti(msg)    
+            # return json.dumps({'success': msg}), 200
+
+        if 'rows' in page:
+            logging.info("In if page")
+            listPage = page['rows']
+            transformed_data_page = GG_Connector.transform_data_page(listPage, site)
+            df_page = pd.DataFrame(transformed_data_page)
+            df_page['date'] = pd.to_datetime(df_page['date'])
+            client = bigquery.Client(project="hmth-448709")
+            BQ_Connector.delete_data(client,tempDataset,tempTable_page)
+            logging.info("Delete temp Done")
+            BQ_Connector.load_data(client,tempDataset,tempTable_page,df_page)
+            logging.info("Load temp Done")
+            condition = "ON ori.date = temp.date AND ori.url = temp.url AND ori.page = temp.page "
+            BQ_Connector.delete_when_match(client,oriDataset,oriTable_page,tempDataset,tempTable_page,condition)
+            logging.info("Delete temp  match Done")
+            BQ_Connector.load_data(client,oriDataset,oriTable_page,df_page)
+
+            logging.info("Load Done")
+        
+            msg = f"🌳 Content: <b>Google Search Console [Main]</b> Executed Successfully on 📅 "
             notires, noticode = h_function.send_gg_chat_noti(msg)
-            return json.dumps({'success': msg}), 200
+
+        if 'rows' in keyword_page:
+            logging.info("In if page")
+            listKeywordPage = keyword_page['rows']
+            transformed_data_keyword_page = GG_Connector.transform_data_page(listKeywordPage, site)
+            df_kw_page = pd.DataFrame(transformed_data_keyword_page)
+            df_kw_page['date'] = pd.to_datetime(df_kw_page['date'])
+            client = bigquery.Client(project="hmth-448709")
+            BQ_Connector.delete_data(client,tempDataset,tempTable_keyword_page)
+            logging.info("Delete temp Done")
+            BQ_Connector.load_data(client,tempDataset,tempTable_keyword_page,df_kw_page)
+            logging.info("Load temp Done")
+            condition =  "ON ori.date = temp.date AND ori.url = temp.url AND ori.country = temp.country AND ori.device = temp.device AND ori.keyword = temp.keyword AND ori.page = temp.page "
+            BQ_Connector.delete_when_match(client,oriDataset,oriTable_keyword_page,tempDataset,tempTable_keyword_page,condition)
+            logging.info("Delete temp  match Done")
+            BQ_Connector.load_data(client,oriDataset,oriTable_keyword_page,df_kw_page)
+
+            logging.info("Load Done")
+        
+            msg = f"🌳 Content: <b>Google Search Console [Keyword page]</b> Executed Successfully on 📅 "
+            notires, noticode = h_function.send_gg_chat_noti(msg)
 
         return json.dumps({'message': "no data"}), 200
                 

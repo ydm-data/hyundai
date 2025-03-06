@@ -1128,7 +1128,7 @@ def update_google_search_console():
 
             logging.info("Load Done")
         
-            msg = f"🌳 Content: <b>Google Search Console [Main]</b> Executed Successfully on 📅 "
+            msg = f"🌳 Content: <b>Google Search Console [Page]</b> Executed Successfully on 📅 "
             notires, noticode = h_function.send_gg_chat_noti(msg)
 
         if 'rows' in keyword_page:

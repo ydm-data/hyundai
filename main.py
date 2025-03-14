@@ -983,7 +983,7 @@ def update_fb_daily_catalog_segments():
 
 
 @app.route('/update_fb_page_insight', methods=['POST'])
-def update_fb_page_cta_engagement():
+def update_fb_page_insight():
     
     pages = FB_Connector.get_all_page()
     metric = FB_Connector.get_page_insight_metric()

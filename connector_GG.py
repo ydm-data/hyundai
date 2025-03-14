@@ -1218,4 +1218,35 @@ class GG_Connector:
                 "position": record['position']
             })
         return transformed_records
+    
+    def transform_data_page(records, url=None):
+        transformed_records = []
+        for record in records:
+            transformed_records.append({
+                "date": record['keys'][0],
+                "url": url,
+                "page": record['keys'][1],
+                "clicks": record['clicks'],
+                "impressions": record['impressions'],
+                "ctr": record['ctr'],
+                "position": record['position']
+            })
+        return transformed_records
+    
+    def transform_data_keyword_page(records, url=None):
+        transformed_records = []
+        for record in records:
+            transformed_records.append({
+                "date": record['keys'][0],
+                "url": url,
+                "country": record['keys'][1],
+                "device": record['keys'][2],
+                "keyword": record['keys'][3],
+                "page": record['keys'][4],
+                "clicks": record['clicks'],
+                "impressions": record['impressions'],
+                "ctr": record['ctr'],
+                "position": record['position']
+            })
+        return transformed_records
         

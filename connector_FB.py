@@ -395,6 +395,14 @@ class FB_Connector:
         
         return ads_data
     
+    def clean_page_insight_pivot_needed(df):
+        df['date'] = pd.to_datetime(df['date'])
+        df['updated_time'] = pd.to_datetime(df['date'])
+        df = df[df['value'] != {}]
+        df['value'] = df['value'].apply(lambda x: list(x.values())[0] if isinstance(x, dict) else x)
+        pivoted_df = df.pivot_table(index=['page_id', 'page_name', 'date', 'updated_time'], 
+                            columns='metric', values='value', aggfunc='first').reset_index()
+        return pivoted_df
     
     def get_all_page():
         access_token = os.getenv('FB_PAGE_TOKEN')
@@ -405,7 +413,6 @@ class FB_Connector:
         pages = me.get_accounts(fields=fields, params=params)
         return pages
     
-    
     def get_page_insight(pages, metric):
         rows = []
         for page in pages:
@@ -413,26 +420,90 @@ class FB_Connector:
             page_name = page['name']
             page_access_token = page.get('access_token')
 
-            FacebookAdsApi.init(access_token=page_access_token)
-            page_obj = Page(page_id)
-            params = {
-                'metric': metric,
-                'period': 'day',
-                'since': (datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d'),
-                'until': datetime.now().strftime("%Y-%m-%d")
-            }
-            insights = page_obj.get_insights(params=params)
+            if page_name == "Hyundai Thailand":
+                FacebookAdsApi.init(access_token=page_access_token)
+                page_obj = Page(page_id)
+                params = {
+                    'metric': metric,
+                    'period': 'day',
+                    'since': (datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d'),
+                    'until': datetime.now().strftime("%Y-%m-%d")
+                }
+                insights = page_obj.get_insights(params=params)
+                
+                for entry in insights:
+                    for value in entry['values']:
+                        rows.append({
+                            'page_id': page_id,
+                            'page_name': page_name,
+                            'metric': entry['name'],
+                            'date': value['end_time'],
+                            'value': value['value'],
+                            'updated_time': datetime.now().strftime('%Y-%m-%d')
+                        })         
+        return rows
+    
+    def get_fb_pagepost(pages):
+        rows = []
+        batch_size = 3  # Reduce batch size to 3 pages per batch
+        delay_between_batches = 10  # Increase delay between batches to 10 seconds
+        delay_on_error = 10  # Wait 60 seconds before retrying after hitting a rate limit
+
+        for i in range(0, len(pages), batch_size):
+            batch_pages = pages[i:i + batch_size]
             
-            for entry in insights:
-                for value in entry['values']:
-                    rows.append({
-                        'page_id': page_id,
-                        'page_name': page_name,
-                        'metric': entry['name'],
-                        'date': value['end_time'],
-                        'value': value['value'],
-                        'updated_time': datetime.now().strftime('%Y-%m-%d')
-                    })         
+            for page in batch_pages:
+                page_id = page['id']
+                page_name = page['name']
+                if page_name == "Hyundai Thailand":
+                    page_access_token = page.get('access_token')
+                    # print(page_name, end=", ")
+
+                    FacebookAdsApi.init(access_token=page_access_token)
+                    page_obj = Page(page_id)
+                    fields = ['id', 'message', 'created_time', 'permalink_url','shares']
+                    
+                    try:
+                        insights = page_obj.get_posts(
+                            fields=fields, 
+                            params={
+                                'limit': 10,  # Limit to 10 posts per request
+                                'since': (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d')
+                            }
+                        )  # Limit to 10 posts per request
+                        
+                        while True:
+                            for entry in insights:
+                                if 'shares' in entry:
+                                    share_count = entry['shares']['count']
+                                else:
+                                    share_count = 0
+                                message = entry.get('message', "")
+                                rows.append({
+                                    'page_id': page_id,
+                                    'page_name': page_name,
+                                    'created_time': entry['created_time'],
+                                    'id': entry['id'],
+                                    'post_id': entry['id'].split("_")[1],
+                                    'share_count': share_count,
+                                    'message': message,
+                                    'permalink_url': entry['permalink_url'],
+                                    'updated_time': datetime.now().strftime('%Y-%m-%d')
+                                })
+                            
+                            # Check if there is a next page
+                            if 'paging' in insights and 'next' in insights['paging']:
+                                insights = insights.get_next()
+                            else:
+                                break
+
+                    except Exception as e:
+                        print(f"Error retrieving posts for page {page_id}: {e}")
+                        if 'reduce the amount of data' in str(e):
+                            time.sleep(delay_on_error)
+                            continue  # Retry the same page after waiting
+                    
+                time.sleep(delay_between_batches)
         return rows
     
     def extract_value(d):
@@ -526,21 +597,37 @@ class FB_Connector:
         index = 0
         for ad_id in target_df['ad_id'][0:]:
             if ad_id.isdigit():
-                print(ad_id, end=": ")
-                print(index, end=",")
+
                 # Fetch the ad creatives, with retry and exponential backoff in case of rate limit
                 try:
                     creatives = FB_Connector.fetch_ad_creatives(ad_id)
+                    if creatives:
+                        for creative in creatives:
+                            creative_data = creative.export_all_data()
+                            creative_data['ad_id'] = ad_id
+                            AdCreative_list.append(creative_data)
                 except Exception as e:
                     pass
-                
-                if creatives:
-                    for creative in creatives:
-                        creative_data = creative.export_all_data()
-                        creative_data['ad_id'] = ad_id
-                        AdCreative_list.append(creative_data)
 
                 index += 1
                 # Add a random delay to reduce the likelihood of hitting rate limits
                 time.sleep(random.uniform(1, 3))
-        return AdCreative_list
+    
+    def get_adimage(account_list,access_token):
+        FacebookAdsApi.init(access_token=access_token)
+        adimage_list = []
+        for each_account in account_list:
+            account = AdAccount(each_account)
+            images = account.get_ad_images(fields=['permalink_url','creatives','name','original_height','original_width'])
+            for image in images:
+                temp_output = {
+                    "account_id": each_account.split("_")[1],
+                    "creatives": image.get("creatives",[]),
+                    "id": image['id'],
+                    "name": image['name'],
+                    "original_height": image['original_height'],
+                    "original_width": image['original_width'],
+                    "permalink_url": image['permalink_url']
+                }
+                adimage_list.append(temp_output)
+        return adimage_list

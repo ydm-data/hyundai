@@ -908,19 +908,45 @@ def update_fb_adcreative():
     
     AdCreative_list = FB_Connector.get_adcreative_from_ad_id(access_token,target_df)
     adcreative_df = pd.DataFrame(AdCreative_list)
-    merged_df = pd.merge(df,adcreative_df,how="right",on=['account_id','ad_id'])
     
-    project_id = 'hmth-448709'
-    client = bigquery.Client(project=project_id)
-    BQ_Connector.delete_data(client,'rda_analytics_temp', 'media_facebook_adcreative_temp')
-    BQ_Connector.load_data(client, 'rda_analytics_temp', 'media_facebook_adcreative_temp', merged_df)
-    condition = "ON ori.id = temp.id AND ori.ad_id = temp.ad_id AND ori.account_id = temp.account_id "
-    BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_adcreative","rda_analytics_temp","media_facebook_adcreative_temp",condition)
-    BQ_Connector.load_data(client,"rda_analytics","media_facebook_adcreative",merged_df)
+    if len(adcreative_df) > 0:
+        merged_df = pd.merge(df,adcreative_df,how="right",on=['account_id','ad_id'])
+        
+        project_id = 'hmth-448709'
+        client = bigquery.Client(project=project_id)
+        BQ_Connector.delete_data(client,'rda_analytics_temp', 'media_facebook_adcreative_temp')
+        BQ_Connector.load_data(client, 'rda_analytics_temp', 'media_facebook_adcreative_temp', merged_df)
+        condition = "ON ori.id = temp.id AND ori.ad_id = temp.ad_id AND ori.account_id = temp.account_id "
+        BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_adcreative","rda_analytics_temp","media_facebook_adcreative_temp",condition)
+        BQ_Connector.load_data(client,"rda_analytics","media_facebook_adcreative",merged_df)
 
-    msg = f"🔷 Media: <b>Facebook AdCreatives</b> Executed Successfully on 📅 "
-    h_function.send_gg_chat_noti(msg)
+        msg = f"🔷 Media: <b>Facebook AdCreatives</b> Executed Successfully on 📅 "
+        h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': 'Update Facebook AdCreatives Completed'}), 200
+    
+    
+@app.route('/update_fb_adimage', methods=['POST'])
+def update_fb_adimage():
+    access_token = os.environ['FBTOKEN']
+    service = h_function.get_service()
+    target_accounts = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Facebook")
+    account_list = ['act_' + item for item in target_accounts]
+    
+    adimage_list = FB_Connector.get_adimage(account_list,access_token)
+    image_df = pd.DataFrame(adimage_list)
+    
+    if len(image_df) > 0:
+        project_id = 'hmth-448709'
+        client = bigquery.Client(project=project_id)
+        BQ_Connector.delete_data(client,'rda_analytics_temp', 'media_facebook_adimage_temp')
+        BQ_Connector.load_data(client, 'rda_analytics_temp', 'media_facebook_adimage_temp', image_df)
+        condition = "ON ori.id = temp.id AND ori.ad_id = temp.ad_id AND ori.account_id = temp.account_id "
+        BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_adimage","rda_analytics_temp","media_facebook_adimage_temp",condition)
+        BQ_Connector.load_data(client,"rda_analytics","media_facebook_adimage",image_df)
+
+        msg = f"🔷 Media: <b>Facebook AdImage</b> Executed Successfully on 📅 "
+        h_function.send_gg_chat_noti(msg)
+    return json.dumps({'success': 'Update Facebook AdImage Completed'}), 200
     
     
 @app.route('/update_fb_daily_catalog_segments', methods=['POST'])
@@ -958,6 +984,7 @@ def update_fb_daily_catalog_segments():
 
 @app.route('/update_fb_page_insight', methods=['POST'])
 def update_fb_page_cta_engagement():
+    
     pages = FB_Connector.get_all_page()
     metric = FB_Connector.get_page_insight_metric()
     rows = FB_Connector.get_page_insight(pages,metric)
@@ -965,9 +992,6 @@ def update_fb_page_cta_engagement():
     page_insight_metric = pd.DataFrame(rows)
     pivoted_df = FB_Connector.clean_page_insight(page_insight_metric)
     pivoted_df = FB_Connector.page_insight_nested(pivoted_df)
-    
-    pivoted_df['date'] = pivoted_df['date'].dt.tz_localize(None)
-    pivoted_df['updated_time'] = pivoted_df['updated_time'].dt.tz_localize(None)
 
     client = bigquery.Client()
     BQ_Connector.delete_data(client,"rda_analytics_temp","media_facebook_page_insight_temp")
@@ -976,6 +1000,47 @@ def update_fb_page_cta_engagement():
     BQ_Connector.load_data(client,"rda_analytics","media_facebook_page_insight",pivoted_df)
         
     msg = f"🔷🔖 Content: <b>Facebook Page Insight</b> Executed Successfully on 📅 "
+    h_function.send_gg_chat_noti(msg)
+    return json.dumps({'success': msg}), 200
+
+
+@app.route('/update_content_fb_page_videoview', methods=['POST'])
+def update_content_fb_page_videoview():
+    pages = FB_Connector.get_all_page()
+    metric = [
+            'page_video_views','page_video_views_by_uploaded_hosted','page_video_views_paid','page_video_views_organic',
+            'page_video_views_by_paid_non_paid','page_video_views_autoplayed','page_video_views_click_to_play','page_video_views_unique',
+            'page_video_repeat_views','page_video_complete_views_30s','page_video_complete_views_30s_paid','page_video_complete_views_30s_organic',
+            'page_video_complete_views_30s_autoplayed','page_video_complete_views_30s_click_to_play','page_video_complete_views_30s_unique',
+            'page_video_complete_views_30s_repeat_views','page_video_view_time'
+        ]
+    rows = FB_Connector.get_page_insight(pages,metric)
+    page_insight_metric = pd.DataFrame(rows)
+    pivoted_df = FB_Connector.clean_page_insight_pivot_needed(page_insight_metric)
+    client = bigquery.Client()
+    BQ_Connector.delete_data(client,"rda_analytics_temp","media_facebook_page_videoview_temp")
+    BQ_Connector.load_data(client,"rda_analytics_temp","media_facebook_page_videoview_temp",pivoted_df)
+    BQ_Connector.delete_when_match(client,'rda_analytics','media_facebook_page_videoview','rda_analytics_temp','media_facebook_page_videoview_temp',"ON (ori.date = temp.date AND ori.page_id = temp.page_id) ")
+    BQ_Connector.load_data(client, "rda_analytics","media_facebook_page_videoview",pivoted_df)
+    msg = f"🔷📽️ Content: <b>Facebook Page Video View</b> Executed Successfully on 📅 "
+    h_function.send_gg_chat_noti(msg)
+    return json.dumps({'success': msg}), 200
+
+
+@app.route('/update_content_fb_pagepost', methods=['POST'])
+def update_content_fb_pagepost():
+    pages = FB_Connector.get_all_page()
+    rows = FB_Connector.get_fb_pagepost(pages)
+    df = pd.DataFrame(rows)
+    df['created_time'] = pd.to_datetime(df['created_time'])
+    df['updated_time'] = pd.to_datetime(df['updated_time'])
+    client = bigquery.Client()
+    BQ_Connector.delete_data(client,"rda_analytics_temp","media_facebook_page_feed_temp")
+    BQ_Connector.load_data(client,"rda_analytics_temp","media_facebook_page_feed_temp",df)
+    BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_page_feed","rda_analytics_temp","media_facebook_page_feed_temp",
+                                "ON ori.page_id = temp.page_id AND ori.post_id = temp.post_id ")
+    BQ_Connector.load_data(client, "rda_analytics","media_facebook_page_feed",df)
+    msg = f"🔷🔖 Content: <b>Facebook Page Post</b> Executed Successfully on 📅 "
     h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': msg}), 200
 
@@ -1030,9 +1095,7 @@ def update_google_search_console():
     oriTable_keyword = "google_google_search_console_keyword"
     tempTable_keyword = "google_google_search_console_keyword_temp"
 
-
     site = "https://www.hyundai.com/th/"
-
 
     try:
         #Keyword

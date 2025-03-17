@@ -1032,16 +1032,17 @@ def update_content_fb_pagepost():
     pages = FB_Connector.get_all_page()
     rows = FB_Connector.get_fb_pagepost(pages)
     df = pd.DataFrame(rows)
-    df['created_time'] = pd.to_datetime(df['created_time'])
-    df['updated_time'] = pd.to_datetime(df['updated_time'])
-    client = bigquery.Client()
-    BQ_Connector.delete_data(client,"rda_analytics_temp","media_facebook_page_feed_temp")
-    BQ_Connector.load_data(client,"rda_analytics_temp","media_facebook_page_feed_temp",df)
-    BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_page_feed","rda_analytics_temp","media_facebook_page_feed_temp",
-                                "ON ori.page_id = temp.page_id AND ori.post_id = temp.post_id ")
-    BQ_Connector.load_data(client, "rda_analytics","media_facebook_page_feed",df)
-    msg = f"🔷🔖 Content: <b>Facebook Page Post</b> Executed Successfully on 📅 "
-    h_function.send_gg_chat_noti(msg)
+    if len(df) > 0:
+        df['created_time'] = pd.to_datetime(df['created_time'])
+        df['updated_time'] = pd.to_datetime(df['updated_time'])
+        client = bigquery.Client()
+        BQ_Connector.delete_data(client,"rda_analytics_temp","media_facebook_page_feed_temp")
+        BQ_Connector.load_data(client,"rda_analytics_temp","media_facebook_page_feed_temp",df)
+        BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_page_feed","rda_analytics_temp","media_facebook_page_feed_temp",
+                                    "ON ori.page_id = temp.page_id AND ori.post_id = temp.post_id ")
+        BQ_Connector.load_data(client, "rda_analytics","media_facebook_page_feed",df)
+        msg = f"🔷🔖 Content: <b>Facebook Page Post</b> Executed Successfully on 📅 "
+        h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': msg}), 200
 
 

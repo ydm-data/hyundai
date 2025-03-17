@@ -1043,7 +1043,7 @@ def update_content_fb_pagepost():
         BQ_Connector.load_data(client, "rda_analytics","media_facebook_page_feed",df)
         msg = f"🔷🔖 Content: <b>Facebook Page Post</b> Executed Successfully on 📅 "
         h_function.send_gg_chat_noti(msg)
-    return json.dumps({'success': msg}), 200
+    return json.dumps({'success': "Update FB Page Post Succesfully"}), 200
 
 
 @app.route('/check_updated_media_data', methods=['POST'])

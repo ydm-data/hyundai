@@ -1045,6 +1045,48 @@ def update_content_fb_pagepost():
         h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': "Update FB Page Post Succesfully"}), 200
 
+@app.route('/update_facebook_ad_preview', methods=['POST'])
+def update_content_fb_pagepost():
+    service = h_function.get_service()
+    target_account = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Facebook")
+    for account_id in target_account:
+        ad_id_df = FB_Connector.get_ad_id_list(account_id)
+        ad_id_df = ad_id_df.drop_duplicates(subset=['ad_name'],keep='first')
+        ad_preview_list = FB_Connector.get_ad_preview_list(ad_id_df)
+        
+        df = pd.DataFrame(ad_preview_list)
+        if len(df) > 0:
+            df['ad_preview'] = df['ad_preview'].str.replace('amp;','')
+            
+            client = bigquery.Client()
+            BQ_Connector.delete_data(client,"rda_analytics_temp","media_facebook_ad_preview_map_name_temp")
+            BQ_Connector.load_data(client,"rda_analytics_temp","media_facebook_ad_preview_map_name_temp",df)
+            BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_ad_preview_map_name","rda_analytics_temp","media_facebook_ad_preview_map_name_temp",
+                                        "ON ori.ad_name = temp.ad_name ")
+            BQ_Connector.load_data(client, "rda_analytics","media_facebook_ad_preview_map_name",df)
+            msg = f"🔷🔖 Content: <b>Facebook Ad Preview</b> Executed Successfully on 📅 "
+            h_function.send_gg_chat_noti(msg)
+    return json.dumps({'success': "Update FB Ad Preview Succesfully"}), 200
+
+
+@app.route('/update_content_fb_pagepost_insight', methods=['POST'])
+def update_content_fb_pagepost_insight():
+    pages = FB_Connector.get_all_page()
+    client = bigquery.Client(project="hmth-448709")
+    
+    rows = FB_Connector.get_page_post_insight(pages)
+    df = pd.DataFrame(rows)
+    if len(df) > 0:
+        df = FB_Connector.clean_page_post_insight(df)
+        BQ_Connector.delete_data(client,"rda_analytics_temp","media_facebook_page_post_insight_temp")
+        BQ_Connector.load_data(client,"rda_analytics_temp","media_facebook_page_post_insight_temp",df)
+        BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_page_post_insight","rda_analytics_temp","media_facebook_page_post_insight_temp",
+                                    "ON ori.page_id = temp.page_id AND ori.post_id = temp.post_id AND ori.updated_time = temp.updated_time ")
+        BQ_Connector.load_data(client, "rda_analytics","media_facebook_page_post_insight",df)
+        msg = f"🔷🔖 Content: <b>Facebook Page Post I</b> Executed Successfully on 📅 "
+        h_function.send_gg_chat_noti(msg)
+    return json.dumps({'success': "Update FB Page Post Succesfully"}), 200
+
 
 @app.route('/check_updated_media_data', methods=['POST'])
 def check_updated_media_data():

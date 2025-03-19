@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, timezone, date
 
 from facebook_business.adobjects.user import User
 from facebook_business.adobjects.page import Page
+from facebook_business.adobjects.pagepost import PagePost
 from facebook_business.adobjects.ad import Ad
 from facebook_business.adobjects.adaccount import AdAccount
 from facebook_business.adobjects.adsinsights import AdsInsights
@@ -631,3 +632,144 @@ class FB_Connector:
                 }
                 adimage_list.append(temp_output)
         return adimage_list
+    
+    
+    def get_post_id_list(client,page_name="Hyundai Thailand"):
+        query = f"""
+            SELECT distinct id 
+            FROM `hmth-448709.rda_analytics.media_facebook_page_feed` 
+            WHERE page_name = '{page_name}'
+            ORDER BY updated_time
+            LIMIT 50
+        """
+        query_job = client.query(query)
+        results = [row.id for row in query_job]
+        return results
+    
+    def page_post_insight_metric():
+        metric = [ 'post_clicks','post_clicks_by_type','post_video_ad_break_ad_impressions', 
+                    'post_reactions_like_total', 'post_reactions_haha_total', 'post_reactions_love_total', 'post_reactions_wow_total',
+                    'post_reactions_anger_total', 'post_reactions_sorry_total','post_reactions_by_type_total',
+                    'post_impressions', 'post_impressions_unique', 'post_impressions_paid', 'post_impressions_paid_unique', 'post_impressions_fan', 'post_impressions_fan_unique',
+                    'post_impressions_organic', 'post_impressions_organic_unique', 'post_impressions_viral', 'post_impressions_viral_unique','post_impressions_nonviral', 'post_impressions_nonviral_unique', 'post_clicks', 'post_clicks_by_type',
+                    'post_video_avg_time_watched', 'post_video_complete_views_organic', 'post_video_complete_views_organic_unique', 'post_video_complete_views_paid', 'post_video_complete_views_paid_unique', 'post_video_retention_graph', 
+                    'post_video_retention_graph_clicked_to_play', 'post_video_retention_graph_autoplayed', 'post_video_views_organic', 'post_video_views_organic_unique', 'post_video_views_paid', 'post_video_views_paid_unique',
+                    'post_video_length', 'post_video_views', 'post_video_views_unique', 'post_video_views_autoplayed', 'post_video_views_clicked_to_play',
+                    'post_video_complete_views_30s_autoplayed','post_video_complete_views_30s_clicked_to_play','post_video_complete_views_30s_organic','post_video_complete_views_30s_paid',
+                    'post_video_complete_views_30s_unique','post_video_views_15s','post_video_views_60s_excludes_shorter','post_video_views_sound_on','post_video_view_time','post_video_view_time_organic',
+                    'post_video_view_time_by_age_bucket_and_gender','post_video_view_time_by_region_id','post_video_views_by_distribution_type','post_video_view_time_by_distribution_type',
+                    'post_video_view_time_by_country_id'
+                    ]
+        return metric
+
+    def get_page_post_insight(pages):
+        rows = []
+        delay_on_error = 60  # Wait 60 seconds before retrying after hitting a rate limit
+        client = bigquery.Client()
+
+        for page in pages:
+            page_id = page['id']
+            page_name = page['name']
+            if page_name == "Hyundai Thailand":
+                page_access_token = page.get('access_token')
+                post_id_list = FB_Connector.get_post_id_list(client)
+
+                # Switch to the page access token for each page
+                FacebookAdsApi.init(access_token=page_access_token)
+                
+                # Fetch insights for the current page with pagination and error handling
+                for post_id in post_id_list:
+                    pagepost_obj = PagePost(post_id)
+                    print(post_id,end=", ")
+                    try:
+                        insights = pagepost_obj.get_insights(
+                            params = {
+                                'metric': FB_Connector.page_post_insight_metric(),
+                                'period': 'lifetime',
+                                'date_preset': 'last_30d'
+                            }
+                        )  # Limit to 10 posts per request
+                        
+                        while True:
+                            for entry in insights:
+                                # print(insights)
+                                message = entry.get('message', "")
+                                for value in entry['values']:
+                                    rows.append({
+                                        'page_id': page_id,
+                                        'page_name': page_name,
+                                        'post_id': post_id,
+                                        'metric': entry['name'],
+                                        'value': value['value'],
+                                        'updated_time': datetime.now().strftime('%Y-%m-%d')
+                                    })
+                            
+                            # Check if there is a next page
+                            if 'paging' in insights and 'next' in insights['paging']:
+                                insights = insights.get_next()
+                            else:
+                                break
+
+                    except Exception as e:
+                        print(f"Error retrieving posts for page {page_id}: {e}")
+                        if 'reduce the amount of data' in str(e):
+                            print(f"Rate limit hit. Waiting for {delay_on_error} seconds before retrying...")
+                            continue  # Retry the same page after waiting
+        return rows
+    
+    def clean_page_post_insight(df):
+        df = df.pivot_table(index=['page_id', 'page_name', 'post_id','updated_time'], columns='metric', values='value', aggfunc='first').reset_index()
+        df['updated_time'] = pd.to_datetime(df['updated_time'])
+        
+        if 'post_video_view_time_by_age_bucket_and_gender' in df:
+            df['post_video_view_time_by_age_bucket_and_gender'] = df['post_video_view_time_by_age_bucket_and_gender'].apply(
+            lambda row: [{'age_gender': age_gender, 'value': value} for age_gender, value in row.items()] if isinstance(row, dict) else []
+            )
+        if 'post_video_view_time_by_country_id' in df:
+            df['post_video_view_time_by_country_id'] = df['post_video_view_time_by_country_id'].apply(
+                lambda row: [{'country': country, 'value': value} for country, value in row.items()] if isinstance(row, dict) else []
+            )
+        if 'post_video_view_time_by_region_id' in df:
+            df['post_video_view_time_by_region_id'] = df['post_video_view_time_by_region_id'].apply(
+                lambda row: [{'region': region, 'value': value} for region, value in row.items()] if isinstance(row, dict) else []
+            )
+        if 'post_video_retention_graph' in df:
+            df['post_video_retention_graph'] = df['post_video_retention_graph'].apply(
+            lambda row: [{'video_retention': video_retention, 'value': value} for video_retention, value in row.items()] if isinstance(row, dict) else []
+            )
+        if 'post_video_retention_graph_autoplayed' in df:
+            df['post_video_retention_graph_autoplayed'] = df['post_video_retention_graph_autoplayed'].apply(
+                lambda row: [{'video_retention_autoplayed': video_retention_autoplayed, 'value': value} for video_retention_autoplayed, value in row.items()] if isinstance(row, dict) else []
+            )
+        if 'post_video_retention_graph_clicked_to_play' in df:
+            df['post_video_retention_graph_clicked_to_play'] = df['post_video_retention_graph_clicked_to_play'].apply(
+                lambda row: [{'video_retention_clicked': video_retention_clicked, 'value': value} for video_retention_clicked, value in row.items()] if isinstance(row, dict) else []
+            )
+        return df
+    
+    def get_ad_id_list(account_id):
+        query = f"""
+            SELECT 
+                main.ad_id, 
+                main.ad_name,
+            FROM `hmth-448709.rda_analytics.media_facebook` main
+            WHERE account_id = '{account_id}'
+            GROUP BY main.ad_id, main.ad_name
+        """
+        client = bigquery.Client(project="hmth-448709")
+        query_job = client.query(query)
+        df = query_job.to_dataframe()
+        return df
+    
+    def get_ad_preview_list(ad_id_df):
+        ad_preview_list = []
+        for index, row in ad_id_df.iterrows():
+            ad_obj = Ad(row['ad_id'])
+            results = ad_obj.get_previews(params={"ad_format":"DESKTOP_FEED_STANDARD"})
+            for result in results:
+                ad_preview_list.append({
+                    "ad_id": row['ad_id'],
+                    "ad_name": row['ad_name'],
+                    "ad_preview": result['body']
+                })
+        return ad_preview_list

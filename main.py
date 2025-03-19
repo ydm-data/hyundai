@@ -1088,6 +1088,27 @@ def update_content_fb_pagepost_insight():
         h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': "Update FB Page Post Succesfully"}), 200
 
+@app.route('/update_content_fb_pagepost_attachment', methods=['POST'])
+def update_content_fb_pagepost_attachment():
+    pages = FB_Connector.get_all_page()
+    client = bigquery.Client(project="hmth-448709")
+    
+    for page in pages:
+        page_id = page['id']
+        post_id_list = FB_Connector.get_post_id_list_for_attachment(client,page_id)
+        rows = FB_Connector.get_page_post_attachement(pages,post_id_list)
+        df = pd.DataFrame(rows)
+        if len(df) > 0:
+            df = FB_Connector.clean_page_post_insight(df)
+            BQ_Connector.delete_data(client,"rda_analytics_temp","media_facebook_page_post_attachment_temp")
+            BQ_Connector.load_data(client,"rda_analytics_temp","media_facebook_page_post_attachment_temp",df)
+            BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_page_post_attachment","rda_analytics_temp","media_facebook_page_post_attachment_temp",
+                                        "ON ori.page_id = temp.page_id AND ori.post_id = temp.post_id ")
+            BQ_Connector.load_data(client, "rda_analytics","media_facebook_page_post_attachment",df)
+            msg = f"🔷🔖 Content: <b>Facebook Page Post Attachment</b> Executed Successfully on 📅 "
+            h_function.send_gg_chat_noti(msg)
+    return json.dumps({'success': "Update FB Page Post Attachment Succesfully"}), 200
+
 
 @app.route('/check_updated_media_data', methods=['POST'])
 def check_updated_media_data():

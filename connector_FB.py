@@ -455,7 +455,7 @@ class FB_Connector:
                 page_name = page['name']
                 if page_name == "Hyundai Thailand":
                     page_access_token = page.get('access_token')
-                    # print(page_name, end=", ")
+                    print(page_name, end=", ")
 
                     FacebookAdsApi.init(access_token=page_access_token)
                     page_obj = Page(page_id)
@@ -498,10 +498,10 @@ class FB_Connector:
                     except Exception as e:
                         print(f"Error retrieving posts for page {page_id}: {e}")
                         if 'reduce the amount of data' in str(e):
-                            time.sleep(delay_on_error)
+                            # time.sleep(delay_on_error)
                             continue  # Retry the same page after waiting
                     
-                time.sleep(delay_between_batches)
+                # time.sleep(delay_between_batches)
         return rows
     
     def extract_value(d):
@@ -644,6 +644,23 @@ class FB_Connector:
         results = [row.id for row in query_job]
         return results
     
+    def get_post_id_list_for_attachment(client,page_id):
+        query = f"""
+            SELECT 
+                id, 
+                coalesce(attachment.media.image.src,subattachments.media.image.src) as image_scr
+            FROM `hmth-448709.rda_analytics.media_facebook_page_feed` AS page_feed
+            LEFT JOIN `hmth-448709.rda_analytics.media_facebook_page_post_attachment` AS attachment
+                ON page_feed.id = attachment.post_id
+            LEFT JOIN UNNEST(attachment.subattachments) AS subattachments
+            WHERE page_feed.page_id = '{page_id}' 
+            GROUP BY id,image_scr
+            HAVING image_scr IS NULL
+        """
+        query_job = client.query(query)
+        results = [row.id for row in query_job]
+        return results
+    
     def page_post_insight_metric():
         metric = [ 'post_clicks','post_clicks_by_type','post_video_ad_break_ad_impressions', 
                     'post_reactions_like_total', 'post_reactions_haha_total', 'post_reactions_love_total', 'post_reactions_wow_total',
@@ -715,6 +732,48 @@ class FB_Connector:
                             continue  # Retry the same page after waiting
         return rows
     
+    
+    def get_page_post_attachement(pages,post_id_list):
+        rows = []
+        delay_on_error = 60 
+
+        for page in pages:
+            page_id = page['id']
+            page_name = page['name']
+            if page_name == "Hyundai Thailand":
+                page_access_token = page.get('access_token')
+                print(f"Processing {page_name}", end=", ")
+
+                # Switch to the page access token for each page
+                FacebookAdsApi.init(access_token=page_access_token)
+                
+                # Fetch insights for the current page with pagination and error handling
+                for post_id in post_id_list:
+                    pagepost_obj = PagePost(post_id)
+                    # print(post_id,end=", ")
+                    try:
+                        insights = pagepost_obj.get_attachments()
+                        # print(insights)
+                        for entry in insights:
+                            rows.append({
+                                'page_id': page_id,
+                                'page_name': page_name,
+                                'post_id': post_id,
+                                'media': entry.get('media',{}),
+                                'target': entry.get('target',{}),
+                                'type': entry.get('type',''),
+                                "url": entry.get('url',''),
+                                "description": entry.get('description',''),
+                                "subattachments": entry.get("subattachments", {}).get("data", [])
+                            })
+
+                    except Exception as e:
+                        print(f"Error retrieving posts for page {page_id}: {e}")
+                        if 'reduce the amount of data' in str(e):
+                            print(f"Rate limit hit. Waiting for {delay_on_error} seconds before retrying...")
+                            continue  # Retry the same page after waiting
+        return rows
+        
     def clean_page_post_insight(df):
         df = df.pivot_table(index=['page_id', 'page_name', 'post_id','updated_time'], columns='metric', values='value', aggfunc='first').reset_index()
         df['updated_time'] = pd.to_datetime(df['updated_time'])

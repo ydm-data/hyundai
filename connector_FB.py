@@ -397,13 +397,10 @@ class FB_Connector:
         return ads_data
     
     def clean_page_insight_pivot_needed(df):
+        df = df.pivot_table(index=['page_id', 'page_name', 'date', 'updated_time'], columns='metric', values='value', aggfunc='first').reset_index()
         df['date'] = pd.to_datetime(df['date'])
         df['updated_time'] = pd.to_datetime(df['date'])
-        df = df[df['value'] != {}]
-        df['value'] = df['value'].apply(lambda x: list(x.values())[0] if isinstance(x, dict) else x)
-        pivoted_df = df.pivot_table(index=['page_id', 'page_name', 'date', 'updated_time'], 
-                            columns='metric', values='value', aggfunc='first').reset_index()
-        return pivoted_df
+        return df
     
     def get_all_page():
         access_token = os.getenv('FB_PAGE_TOKEN')
@@ -636,10 +633,11 @@ class FB_Connector:
     
     def get_post_id_list(client,page_name="Hyundai Thailand"):
         query = f"""
-            SELECT distinct id 
+            SELECT id 
             FROM `hmth-448709.rda_analytics.media_facebook_page_feed` 
             WHERE page_name = '{page_name}'
-            ORDER BY updated_time
+            GROUP BY id,updated_time
+            ORDER BY updated_time desc
             LIMIT 50
         """
         query_job = client.query(query)

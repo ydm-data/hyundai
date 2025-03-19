@@ -1045,6 +1045,7 @@ def update_content_fb_pagepost():
         h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': "Update FB Page Post Succesfully"}), 200
 
+
 @app.route('/update_facebook_ad_preview', methods=['POST'])
 def update_facebook_ad_preview():
     service = h_function.get_service()

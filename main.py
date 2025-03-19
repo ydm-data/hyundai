@@ -1046,7 +1046,7 @@ def update_content_fb_pagepost():
     return json.dumps({'success': "Update FB Page Post Succesfully"}), 200
 
 @app.route('/update_facebook_ad_preview', methods=['POST'])
-def update_content_fb_pagepost():
+def update_facebook_ad_preview():
     service = h_function.get_service()
     target_account = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Facebook")
     for account_id in target_account:

@@ -1049,11 +1049,12 @@ def update_content_fb_pagepost():
 @app.route('/update_facebook_ad_preview', methods=['POST'])
 def update_facebook_ad_preview():
     service = h_function.get_service()
+    access_token = os.environ['FBTOKEN']
     target_account = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Facebook")
     for account_id in target_account:
         ad_id_df = FB_Connector.get_ad_id_list(account_id)
         ad_id_df = ad_id_df.drop_duplicates(subset=['ad_name'],keep='first')
-        ad_preview_list = FB_Connector.get_ad_preview_list(ad_id_df)
+        ad_preview_list = FB_Connector.get_ad_preview_list(access_token,ad_id_df)
         
         df = pd.DataFrame(ad_preview_list)
         if len(df) > 0:

@@ -818,7 +818,8 @@ class FB_Connector:
         df = query_job.to_dataframe()
         return df
     
-    def get_ad_preview_list(ad_id_df):
+    def get_ad_preview_list(access_token,ad_id_df):
+        FacebookAdsApi.init(access_token=access_token)
         ad_preview_list = []
         for index, row in ad_id_df.iterrows():
             ad_obj = Ad(row['ad_id'])

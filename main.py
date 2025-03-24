@@ -1059,13 +1059,12 @@ def update_facebook_ad_preview():
         df = pd.DataFrame(ad_preview_list)
         if len(df) > 0:
             df['ad_preview'] = df['ad_preview'].str.replace('amp;','')
-            
             client = bigquery.Client()
-            BQ_Connector.delete_data(client,"rda_analytics_temp","media_facebook_ad_preview_map_name_temp")
-            BQ_Connector.load_data(client,"rda_analytics_temp","media_facebook_ad_preview_map_name_temp",df)
-            BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_ad_preview_map_name","rda_analytics_temp","media_facebook_ad_preview_map_name_temp",
-                                        "ON ori.ad_name = temp.ad_name ")
-            BQ_Connector.load_data(client, "rda_analytics","media_facebook_ad_preview_map_name",df)
+            BQ_Connector.delete_data(client,"rda_analytics","media_facebook_ad_preview_map_name")
+            BQ_Connector.load_data(client,"rda_analytics","media_facebook_ad_preview_map_name",df)
+            # BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_ad_preview_map_name","rda_analytics_temp","media_facebook_ad_preview_map_name_temp",
+            #                             "ON ori.ad_name = temp.ad_name ")
+            # BQ_Connector.load_data(client, "rda_analytics","media_facebook_ad_preview_map_name",df)
             msg = f"🔷🔖 Content: <b>Facebook Ad Preview</b> Executed Successfully on 📅 "
             h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': "Update FB Ad Preview Succesfully"}), 200

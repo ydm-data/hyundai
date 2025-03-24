@@ -823,7 +823,10 @@ class FB_Connector:
         ad_preview_list = []
         for index, row in ad_id_df.iterrows():
             ad_obj = Ad(row['ad_id'])
-            results = ad_obj.get_previews(params={"ad_format":"DESKTOP_FEED_STANDARD"})
+            try:
+                results = ad_obj.get_previews(params={"ad_format":"DESKTOP_FEED_STANDARD"})
+            except:
+                pass
             for result in results:
                 ad_preview_list.append({
                     "ad_id": row['ad_id'],

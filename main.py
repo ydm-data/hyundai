@@ -299,7 +299,7 @@ def update_tiktok_video_ad_info():
                     "ON (ori.video_id = temp.video_id) ")
         BQ_Connector.load_data(client, "rda_analytics", "media_tiktok_video_ads_info", all_video_df)
     
-    return json.dumps({'success': 'Update Video Ads Info Complete'}), 200
+        return json.dumps({'success': 'Update Video Ads Info Complete'}), 200
 
 
 @app.route('/update_exchange_rate_idr_thb', methods=['POST'])

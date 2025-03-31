@@ -22,7 +22,6 @@ class LINE_Connector:
         load_dotenv(override=True)
         secret_key = os.getenv('LINE_SECRET_KEY')
         access_key = os.getenv('LINE_ACCESS_KEY')
-
         method = "GET"
         flattened_data = []
         for adaccountId in target_account:
@@ -74,14 +73,20 @@ class LINE_Connector:
                     else:
                         req = urllib.request.Request(endpoint, headers=http_headers, method=method)
 
-                    with urllib.request.urlopen(req) as res:
-                        resp = res.read()
-                    
-                    # Parse response
-                    response_data = resp.decode()
-                    data = json.loads(response_data)
-                    # print(data)
-                    
+                    try:  
+                        with urllib.request.urlopen(req) as res:
+                            resp = res.read()
+                        
+                        # Parse response
+                        response_data = resp.decode()
+                        data = json.loads(response_data)
+
+                    except urllib.error.HTTPError as e:
+                        print("HTTP Error:", e.code, e.reason)
+                        print(e.read().decode())
+                    except urllib.error.URLError as e:
+                        print("URL Error:", e.reason)
+
                     for record in data['datas']:
                         flattened_data.append({
                             "adaccount_id": record["adaccount"]["id"],

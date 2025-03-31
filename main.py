@@ -18,6 +18,7 @@ from connector_GG import GG_Connector
 from connector_BQ import BQ_Connector
 from connector_TT import TT_connector
 from helper_function import h_function
+from connector_LINE import LINE_Connector
 
 from google.oauth2 import service_account
 from google.ads.googleads.client import GoogleAdsClient
@@ -1108,6 +1109,50 @@ def update_content_fb_pagepost_attachment():
             msg = f"🔷🔖 Content: <b>Facebook Page Post Attachment</b> Executed Successfully on 📅 "
             h_function.send_gg_chat_noti(msg)
     return json.dumps({'success': "Update FB Page Post Attachment Succesfully"}), 200
+
+
+@app.route('/update_line', methods=['POST'])
+def update_line():
+    
+    service = h_function.get_service()
+    target_account = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Line")
+    reportLevel = 'ad'
+    
+    size = 100
+    start_date = datetime.now() - timedelta(days=15)
+    end_date = datetime.now()
+
+    current_date = start_date
+    flattened_data = LINE_Connector.get_online_report(target_account,current_date,end_date,size,reportLevel)
+    df = pd.DataFrame(flattened_data)
+    df['date'] = pd.to_datetime(df['date'])
+    
+    client = bigquery.Client()
+    BQ_Connector.delete_data(client,"rda_analytics_temp","media_line_temp")
+    BQ_Connector.load_data(client, "rda_analytics_temp", "media_line_temp",df)
+    BQ_Connector.delete_when_match(client,"rda_analytics","media_line","rda_analytics_temp","media_line_temp","ON ori.ad_id = temp.ad_id AND ori.date = temp.date AND ori.adaccount_id = temp.adaccount_id ")
+    BQ_Connector.load_data(client,"rda_analytics","media_line",df)
+        
+    msg = f"💬 Media: <b>Line Online Report (Ad)</b> Executed Successfully on 📅 "
+    h_function.send_gg_chat_noti(msg)
+    return json.dumps({'success': msg}), 200
+
+
+@app.route('/update_line_ad_info', methods=['POST'])
+def update_line_ad_info():
+    
+    service = h_function.get_service()
+    target_account = h_function.get_account(service,"Media Account!A1:ZZ",'1S1Ew5r7RL9zvpvZc-Azd8Mc8tkAikitkw2mgAcAb4Ro',"Account ID", "Line")
+    
+    all_data = LINE_Connector.get_ad_info(target_account)
+    
+    client = bigquery.Client()
+    BQ_Connector.delete_data(client,"rda_analytics","media_line_ad_info")
+    BQ_Connector.load_data(client, "rda_analytics", "media_line_ad_info",pd.DataFrame(all_data))
+        
+    msg = f"💬 Media: <b>Line Ad Info (Ad)</b> Executed Successfully on 📅 "
+    h_function.send_gg_chat_noti(msg)
+    return json.dumps({'success': msg}), 200
 
 
 @app.route('/check_updated_media_data', methods=['POST'])

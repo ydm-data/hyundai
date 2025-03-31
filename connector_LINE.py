@@ -24,6 +24,8 @@ class LINE_Connector:
         access_key = os.getenv('LINE_ACCESS_KEY')
         method = "GET"
         flattened_data = []
+        data = {}
+        
         for adaccountId in target_account:
             while current_date <= end_date:
                 page=1

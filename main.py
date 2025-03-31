@@ -1183,15 +1183,15 @@ def check_updated_media_data():
     fb_actions = BQ_Connector.get_recent_date(client, "date_start","rda_analytics", "media_facebook_action")
     fb_catalog = BQ_Connector.get_recent_date(client, "date_start","rda_analytics", "media_facebook_catalog_segment")
     
-    # line_main = BQ_Connector.get_recent_date(client, "date","rda_analytics", "media_line")
+    line_main = BQ_Connector.get_recent_date(client, "date","rda_analytics", "media_line")
     
     msg1 = f"🌳 <b>Google</b> \n GG AdBasicsStats: 📅{gg_AdBasics}\n  GG AdCrossDevice: 📅{gg_AdCrossDevice}\n GG AdGroupBasicsStats: 📅{gg_AdGroupBasics}\n  GG AdGroupCrossDevice: 📅{gg_AdGroupCrossDevice}\n  GG CampaignBasicStats: 📅{gg_CampaignBasic}\n  GG CampaignCrossDevice: 📅{gg_CampaignCrossDevice}\n  GG VideoBasicStats: 📅{gg_VideoBasicStats}\n GG VideoNonClickStats: 📅{gg_VideoNonClickStats}"
     msg2 = f"🎶 <b>Tiktok</b> \n TT Main: 📅{tiktok_main}\n TT Event: 📅{tiktok_event}\n TT Page Event: 📅{tiktok_pageevent}\n TT Shop Ads: 📅{tiktok_shopads}"
     # msg3 = f"🌻 <b>RTB</b> \n RTB: 📅{rtb_data}"
     msg3 = f"🔷 <b>Facebook</b> \n FB Main: 📅{fb_main}\n FB Actions: 📅{fb_actions}\n FB Catalog Segment: 📅{fb_catalog}"
-    # msg5 = f"💬 <b>Line</b> \n Line: 📅{line_main}"
+    msg4 = f"💬 <b>Line</b> \n Line: 📅{line_main}"
     
-    h_function.send_gg_chat_noti_with_divider(msg1,msg2,msg3)
+    h_function.send_gg_chat_noti_with_divider(msg1,msg2,msg3,msg4)
     return json.dumps({'success': 'Check Media Recent Date'}), 200
 
 @app.route('/update_google_search_console', methods=['POST'])

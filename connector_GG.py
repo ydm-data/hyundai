@@ -486,11 +486,11 @@ class GG_Connector:
         for customer_id in customer_ids:
             try:
                 scopes=['https://www.googleapis.com/auth/adwords']
-                service_account_info, developer_token = GG_Connector.get_service_dev_token(customer_id) 
+                service_account_info, developer_token,login_customer_id = GG_Connector.get_service_dev_token(customer_id) 
                 credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
                 # Initialize the GoogleAdsClient with the credentials
-                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token,login_customer_id=login_customer_id)
                 
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
@@ -533,11 +533,11 @@ class GG_Connector:
         for customer_id in customer_ids:
             try:
                 scopes=['https://www.googleapis.com/auth/adwords']
-                service_account_info, developer_token = GG_Connector.get_service_dev_token(customer_id) 
+                service_account_info, developer_token,login_customer_id = GG_Connector.get_service_dev_token(customer_id) 
                 credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
                 # Initialize the GoogleAdsClient with the credentials
-                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token,login_customer_id=login_customer_id)
                 
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
@@ -576,11 +576,11 @@ class GG_Connector:
         for customer_id in customer_ids:
             try:
                 scopes=['https://www.googleapis.com/auth/adwords']
-                service_account_info, developer_token = GG_Connector.get_service_dev_token(customer_id) 
+                service_account_info, developer_token,login_customer_id = GG_Connector.get_service_dev_token(customer_id) 
                 credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
                 # Initialize the GoogleAdsClient with the credentials
-                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token,login_customer_id=login_customer_id)
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
                 response = ga_service.search(customer_id=customer_id, query=query)
@@ -623,11 +623,11 @@ class GG_Connector:
         for customer_id in customer_ids:
             try:
                 scopes=['https://www.googleapis.com/auth/adwords']
-                service_account_info, developer_token = GG_Connector.get_service_dev_token(customer_id) 
+                service_account_info, developer_token,login_customer_id = GG_Connector.get_service_dev_token(customer_id) 
                 credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
                 # Initialize the GoogleAdsClient with the credentials
-                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token,login_customer_id=login_customer_id)
                 
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
@@ -671,11 +671,11 @@ class GG_Connector:
         for customer_id in customer_ids:
             try:
                 scopes=['https://www.googleapis.com/auth/adwords']
-                service_account_info, developer_token = GG_Connector.get_service_dev_token(customer_id) 
+                service_account_info, developer_token,login_customer_id = GG_Connector.get_service_dev_token(customer_id) 
                 credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
                 # Initialize the GoogleAdsClient with the credentials
-                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token,login_customer_id=login_customer_id)
                 
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
@@ -724,11 +724,11 @@ class GG_Connector:
         for customer_id in customer_ids:
             try:
                 scopes=['https://www.googleapis.com/auth/adwords']
-                service_account_info, developer_token = GG_Connector.get_service_dev_token(customer_id) 
+                service_account_info, developer_token,login_customer_id = GG_Connector.get_service_dev_token(customer_id) 
                 credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
-                
+
                 # Initialize the GoogleAdsClient with the credentials
-                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token,login_customer_id=login_customer_id)
                 
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
@@ -787,11 +787,11 @@ class GG_Connector:
         for customer_id in customer_ids:
             try:
                 scopes=['https://www.googleapis.com/auth/adwords']
-                service_account_info, developer_token = GG_Connector.get_service_dev_token(customer_id) 
+                service_account_info, developer_token,login_customer_id = GG_Connector.get_service_dev_token(customer_id) 
                 credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
                 # Initialize the GoogleAdsClient with the credentials
-                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token,login_customer_id=login_customer_id)
                 
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
@@ -840,11 +840,11 @@ class GG_Connector:
         for customer_id in customer_ids:
             try:
                 scopes=['https://www.googleapis.com/auth/adwords']
-                service_account_info, developer_token = GG_Connector.get_service_dev_token(customer_id) 
+                service_account_info, developer_token,login_customer_id = GG_Connector.get_service_dev_token(customer_id) 
                 credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
                 # Initialize the GoogleAdsClient with the credentials
-                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token,login_customer_id=login_customer_id)
                 
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
@@ -890,11 +890,11 @@ class GG_Connector:
         for customer_id in customer_ids:
             try:
                 scopes=['https://www.googleapis.com/auth/adwords']
-                service_account_info, developer_token = GG_Connector.get_service_dev_token(customer_id) 
+                service_account_info, developer_token,login_customer_id = GG_Connector.get_service_dev_token(customer_id) 
                 credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
                 # Initialize the GoogleAdsClient with the credentials
-                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token,login_customer_id=login_customer_id)
                 
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
@@ -937,11 +937,11 @@ class GG_Connector:
         for customer_id in customer_ids:
             try:
                 scopes=['https://www.googleapis.com/auth/adwords']
-                service_account_info, developer_token = GG_Connector.get_service_dev_token(customer_id) 
+                service_account_info, developer_token,login_customer_id = GG_Connector.get_service_dev_token(customer_id) 
                 credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
                 # Initialize the GoogleAdsClient with the credentials
-                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token,login_customer_id=login_customer_id)
                 
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
@@ -990,17 +990,11 @@ class GG_Connector:
             try:
                 scopes=['https://www.googleapis.com/auth/adwords']
                 
-                if customer_id == '7498651531':
-                    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
-                    developer_token=os.environ.get('GG_DEV_TOKEN')
-                else:
-                    service_account_info = json.loads(os.environ.get("hmth-sem"))
-                    developer_token=os.environ.get('GG_DEV_TOKEN_SEM')
-                    
+                service_account_info, developer_token,login_customer_id = GG_Connector.get_service_dev_token(customer_id) 
                 credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
 
                 # Initialize the GoogleAdsClient with the credentials
-                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token,login_customer_id=login_customer_id)
                 
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")

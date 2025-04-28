@@ -810,7 +810,9 @@ class FB_Connector:
                 main.ad_id, 
                 main.ad_name,
             FROM `hmth-448709.rda_analytics.media_facebook` main
-            WHERE account_id = '{account_id}'
+            JOIN `hmth-448709.rda_analytics.media_facebook_ad_preview_map_name` ad_preview
+                ON main.ad_id = ad_preview.ad_id
+            WHERE account_id = '{account_id}' AND ad_preview.ad_preview IS NULL
             GROUP BY main.ad_id, main.ad_name
         """
         client = bigquery.Client(project="hmth-448709")

@@ -1,4 +1,6 @@
 import os
+import json
+from google.oauth2 import service_account
 from google.ads.googleads.client import GoogleAdsClient
 from google.ads.googleads.errors import GoogleAdsException
 
@@ -419,10 +421,23 @@ class GG_Connector:
         """
         return query
     
-    def get_basicstat_data(client,customer_ids,query):
+    def get_basicstat_data(customer_ids,query):
         all_data = []
         for customer_id in customer_ids:
             try:
+                scopes=['https://www.googleapis.com/auth/adwords']
+                
+                if customer_id == '7498651531':
+                    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN')
+                else:
+                    service_account_info = json.loads(os.environ.get("hmth-sem"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN_SEM')
+                    
+                credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
+
+                # Initialize the GoogleAdsClient with the credentials
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
                 response = ga_service.search(customer_id=customer_id, query=query)
@@ -462,10 +477,24 @@ class GG_Connector:
         return all_data
     
     
-    def get_adgroup_basicstat_data(client,customer_ids,query):
+    def get_adgroup_basicstat_data(customer_ids,query):
         all_data = []
         for customer_id in customer_ids:
             try:
+                scopes=['https://www.googleapis.com/auth/adwords']
+                
+                if customer_id == '7498651531':
+                    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN')
+                else:
+                    service_account_info = json.loads(os.environ.get("hmth-sem"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN_SEM')
+                    
+                credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
+
+                # Initialize the GoogleAdsClient with the credentials
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
                 response = ga_service.search(customer_id=customer_id, query=query)
@@ -502,10 +531,24 @@ class GG_Connector:
                     print(f"Error message: {error.message}")
         return all_data
     
-    def get_campaign_basicstat_data(client,customer_ids,query):
+    def get_campaign_basicstat_data(customer_ids,query):
         all_data = []
         for customer_id in customer_ids:
             try:
+                scopes=['https://www.googleapis.com/auth/adwords']
+                
+                if customer_id == '7498651531':
+                    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN')
+                else:
+                    service_account_info = json.loads(os.environ.get("hmth-sem"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN_SEM')
+                    
+                credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
+
+                # Initialize the GoogleAdsClient with the credentials
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
                 response = ga_service.search(customer_id=customer_id, query=query)
@@ -538,10 +581,23 @@ class GG_Connector:
                     print(f"Error message: {error.message}")
         return all_data
     
-    def get_keyword_basicstat_data(client,customer_ids,query):
+    def get_keyword_basicstat_data(customer_ids,query):
         all_data = []
         for customer_id in customer_ids:
             try:
+                scopes=['https://www.googleapis.com/auth/adwords']
+                
+                if customer_id == '7498651531':
+                    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN')
+                else:
+                    service_account_info = json.loads(os.environ.get("hmth-sem"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN_SEM')
+                    
+                credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
+
+                # Initialize the GoogleAdsClient with the credentials
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
                 response = ga_service.search(customer_id=customer_id, query=query)
@@ -579,10 +635,24 @@ class GG_Connector:
                     print(f"Error message: {error.message}")
         return all_data
     
-    def get_video_basicstat_data(client,customer_ids,query):
+    def get_video_basicstat_data(customer_ids,query):
         all_data = []
         for customer_id in customer_ids:
             try:
+                scopes=['https://www.googleapis.com/auth/adwords']
+                
+                if customer_id == '7498651531':
+                    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN')
+                else:
+                    service_account_info = json.loads(os.environ.get("hmth-sem"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN_SEM')
+                    
+                credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
+
+                # Initialize the GoogleAdsClient with the credentials
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
                 response = ga_service.search(customer_id=customer_id, query=query)
@@ -620,10 +690,24 @@ class GG_Connector:
                     print(f"Error message: {error.message}")
         return all_data
     
-    def get_video_conversionstat_data(client,customer_ids,query):
+    def get_video_conversionstat_data(customer_ids,query):
         all_data = []
         for customer_id in customer_ids:
             try:
+                scopes=['https://www.googleapis.com/auth/adwords']
+                
+                if customer_id == '7498651531':
+                    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN')
+                else:
+                    service_account_info = json.loads(os.environ.get("hmth-sem"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN_SEM')
+                    
+                credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
+
+                # Initialize the GoogleAdsClient with the credentials
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
                 response = ga_service.search(customer_id=customer_id, query=query)
@@ -666,10 +750,24 @@ class GG_Connector:
         return all_data
     
     
-    def get_video_nonclickstat_data(client,customer_ids,query):
+    def get_video_nonclickstat_data(customer_ids,query):
         all_data = []
         for customer_id in customer_ids:
             try:
+                scopes=['https://www.googleapis.com/auth/adwords']
+                
+                if customer_id == '7498651531':
+                    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN')
+                else:
+                    service_account_info = json.loads(os.environ.get("hmth-sem"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN_SEM')
+                    
+                credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
+
+                # Initialize the GoogleAdsClient with the credentials
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
                 response = ga_service.search(customer_id=customer_id, query=query)
@@ -722,10 +820,24 @@ class GG_Connector:
         return all_data
     
     
-    def get_ad_cross_device_conversion_stat_data(client,customer_ids,query):
+    def get_ad_cross_device_conversion_stat_data(customer_ids,query):
         all_data = []
         for customer_id in customer_ids:
             try:
+                scopes=['https://www.googleapis.com/auth/adwords']
+                
+                if customer_id == '7498651531':
+                    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN')
+                else:
+                    service_account_info = json.loads(os.environ.get("hmth-sem"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN_SEM')
+                    
+                credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
+
+                # Initialize the GoogleAdsClient with the credentials
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
                 response = ga_service.search(customer_id=customer_id, query=query)
@@ -768,10 +880,24 @@ class GG_Connector:
                     print(f"Error message: {error.message}")
         return all_data
     
-    def get_ad_group_cross_device_conversion_stat_data(client,customer_ids,query):
+    def get_ad_group_cross_device_conversion_stat_data(customer_ids,query):
         all_data = []
         for customer_id in customer_ids:
             try:
+                scopes=['https://www.googleapis.com/auth/adwords']
+                
+                if customer_id == '7498651531':
+                    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN')
+                else:
+                    service_account_info = json.loads(os.environ.get("hmth-sem"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN_SEM')
+                    
+                credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
+
+                # Initialize the GoogleAdsClient with the credentials
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
                 response = ga_service.search(customer_id=customer_id, query=query)
@@ -811,10 +937,24 @@ class GG_Connector:
                     print(f"Error message: {error.message}")
         return all_data
     
-    def get_campaign_cross_device_conversion_stat_data(client,customer_ids,query):
+    def get_campaign_cross_device_conversion_stat_data(customer_ids,query):
         all_data = []
         for customer_id in customer_ids:
             try:
+                scopes=['https://www.googleapis.com/auth/adwords']
+                
+                if customer_id == '7498651531':
+                    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN')
+                else:
+                    service_account_info = json.loads(os.environ.get("hmth-sem"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN_SEM')
+                    
+                credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
+
+                # Initialize the GoogleAdsClient with the credentials
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
                 response = ga_service.search(customer_id=customer_id, query=query)
@@ -851,10 +991,24 @@ class GG_Connector:
                     print(f"Error message: {error.message}")
         return all_data
     
-    def get_keyword_cross_device_conversion_stat_data(client,customer_ids,query):
+    def get_keyword_cross_device_conversion_stat_data(customer_ids,query):
         all_data = []
         for customer_id in customer_ids:
             try:
+                scopes=['https://www.googleapis.com/auth/adwords']
+                
+                if customer_id == '7498651531':
+                    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN')
+                else:
+                    service_account_info = json.loads(os.environ.get("hmth-sem"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN_SEM')
+                    
+                credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
+
+                # Initialize the GoogleAdsClient with the credentials
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
                 response = ga_service.search(customer_id=customer_id, query=query)
@@ -896,10 +1050,24 @@ class GG_Connector:
                     print(f"Error message: {error.message}")
         return all_data
     
-    def get_adgroup_label_data(client,customer_ids,query):
+    def get_adgroup_label_data(customer_ids,query):
         all_data = []
         for customer_id in customer_ids:
             try:
+                scopes=['https://www.googleapis.com/auth/adwords']
+                
+                if customer_id == '7498651531':
+                    service_account_info = json.loads(os.environ.get("hmth-bigquery"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN')
+                else:
+                    service_account_info = json.loads(os.environ.get("hmth-sem"))
+                    developer_token=os.environ.get('GG_DEV_TOKEN_SEM')
+                    
+                credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=scopes)
+
+                # Initialize the GoogleAdsClient with the credentials
+                client = GoogleAdsClient(credentials=credentials, developer_token=developer_token)
+                
                 # Execute the query for the current customer ID
                 ga_service = client.get_service("GoogleAdsService")
                 response = ga_service.search(customer_id=customer_id, query=query)

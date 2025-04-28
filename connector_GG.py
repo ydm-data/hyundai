@@ -422,14 +422,14 @@ class GG_Connector:
         return query
     
     def get_service_dev_token(customer_id):
-        if customer_id == '7498651531':
+        if customer_id == "7498651531":
             service_account_info = json.loads(os.environ.get("hmth-bigquery"))
             developer_token=os.environ.get('GG_DEV_TOKEN')
-            login_customer_id = '4993931236'
+            login_customer_id = "4993931236"
         else:
             service_account_info = json.loads(os.environ.get("hmth-sem"))
             developer_token=os.environ.get('GG_DEV_TOKEN_SEM')
-            login_customer_id = '2685941715'
+            login_customer_id = "2685941715"
         return service_account_info, developer_token, login_customer_id
                     
     def get_basicstat_data(customer_ids,query):

@@ -400,7 +400,7 @@ def update_google_adsbasicstats():
 
         msg = "🌳 Media: <b>Google AdsBasicStats</b> Executed Successfully on 📅 "
         h_function.send_gg_chat_noti(msg)
-        return json.dumps({'success': 'Update Google AdsBasicStats Completed'}), 200
+    return json.dumps({'success': 'Update Google AdsBasicStats Completed'}), 200
 
 
 @app.route('/update_google_adgroupbasicstats', methods=['POST'])
@@ -438,7 +438,7 @@ def update_google_adgroupbasicstats():
 
         msg = "🌳 Media: <b>Google AdGroupBasicStats</b> Executed Successfully on 📅 "
         h_function.send_gg_chat_noti(msg)
-        return json.dumps({'success': 'Update Google AdGroupBasicStats Completed'}), 200
+    return json.dumps({'success': 'Update Google AdGroupBasicStats Completed'}), 200
 
 
 @app.route('/update_google_campaignbasicstats', methods=['POST'])
@@ -476,7 +476,7 @@ def update_google_campaignbasicstats():
 
         msg = "🌳 Media: <b>Google CampaignBasicStats</b> Executed Successfully on 📅 "
         h_function.send_gg_chat_noti(msg)
-        return json.dumps({'success': 'Update Google CampaignBasicStats Completed'}), 200
+    return json.dumps({'success': 'Update Google CampaignBasicStats Completed'}), 200
 
 
 @app.route('/update_google_keywordbasicstats', methods=['POST'])
@@ -679,7 +679,8 @@ def update_google_adcrossconversionstats():
 
         msg = "🌳 Media: <b>Google AdCrossDeviceConversionStats</b> Executed Successfully on 📅 "
         h_function.send_gg_chat_noti(msg)
-        return json.dumps({'success': 'Update Google AdCrossDeviceConversionStats Completed'}), 200
+    
+    return json.dumps({'success': 'Update Google AdCrossDeviceConversionStats Completed'}), 200
 
 @app.route('/update_google_adgroupcrossconversionstats', methods=['POST'])
 def update_google_adgroupcrossconversionstats():
@@ -720,7 +721,7 @@ def update_google_adgroupcrossconversionstats():
 
         msg = "🌳 Media: <b>Google AdGroupCrossDeviceConversionStats</b> Executed Successfully on 📅 "
         h_function.send_gg_chat_noti(msg)
-        return json.dumps({'success': 'Update Google AdGroupCrossDeviceConversionStats Completed'}), 200
+    return json.dumps({'success': 'Update Google AdGroupCrossDeviceConversionStats Completed'}), 200
 
 
 @app.route('/update_google_campaigncrossconversionstats', methods=['POST'])
@@ -762,7 +763,7 @@ def update_google_campaigncrossconversionstats():
 
         msg = "🌳 Media: <b>Google CampaignCrossDeviceConversionStats</b> Executed Successfully on 📅 "
         h_function.send_gg_chat_noti(msg)
-        return json.dumps({'success': 'Update Google CampaignCrossDeviceConversionStats Completed'}), 200
+    return json.dumps({'success': 'Update Google CampaignCrossDeviceConversionStats Completed'}), 200
 
 @app.route('/update_google_keywordcrossconversionstats', methods=['POST'])
 def update_google_keywordcrossconversionstats():

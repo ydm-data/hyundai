@@ -989,7 +989,7 @@ def update_fb_page_insight():
     
     pages = FB_Connector.get_all_page()
     metric = FB_Connector.get_page_insight_metric()
-    rows = FB_Connector.get_page_insight(pages,metric)
+    rows = FB_Connector.get_page_insight(pages,metric,15)
     
     page_insight_metric = pd.DataFrame(rows)
     pivoted_df = FB_Connector.clean_page_insight(page_insight_metric)
@@ -1016,7 +1016,7 @@ def update_content_fb_page_videoview():
             'page_video_complete_views_30s_autoplayed','page_video_complete_views_30s_click_to_play','page_video_complete_views_30s_unique',
             'page_video_complete_views_30s_repeat_views','page_video_view_time'
         ]
-    rows = FB_Connector.get_page_insight(pages,metric)
+    rows = FB_Connector.get_page_insight(pages,metric,15)
     page_insight_metric = pd.DataFrame(rows)
     pivoted_df = FB_Connector.clean_page_insight_pivot_needed(page_insight_metric)
     client = bigquery.Client()
@@ -1032,7 +1032,7 @@ def update_content_fb_page_videoview():
 @app.route('/update_content_fb_pagepost', methods=['POST'])
 def update_content_fb_pagepost():
     pages = FB_Connector.get_all_page()
-    rows = FB_Connector.get_fb_pagepost(pages)
+    rows = FB_Connector.get_fb_pagepost(pages,2)
     df = pd.DataFrame(rows)
     if len(df) > 0:
         df['created_time'] = pd.to_datetime(df['created_time'])
@@ -1095,20 +1095,18 @@ def update_content_fb_pagepost_attachment():
     pages = FB_Connector.get_all_page()
     client = bigquery.Client(project="hmth-448709")
     
-    for page in pages:
-        page_id = page['id']
-        post_id_list = FB_Connector.get_post_id_list_for_attachment(client,page_id)
-        rows = FB_Connector.get_page_post_attachement(pages,post_id_list)
-        df = pd.DataFrame(rows)
-        if len(df) > 0:
-            df = FB_Connector.clean_page_post_insight(df)
-            BQ_Connector.delete_data(client,"rda_analytics_temp","media_facebook_page_post_attachment_temp")
-            BQ_Connector.load_data(client,"rda_analytics_temp","media_facebook_page_post_attachment_temp",df)
-            BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_page_post_attachment","rda_analytics_temp","media_facebook_page_post_attachment_temp",
-                                        "ON ori.page_id = temp.page_id AND ori.post_id = temp.post_id ")
-            BQ_Connector.load_data(client, "rda_analytics","media_facebook_page_post_attachment",df)
-            msg = f"🔷🔖 Content: <b>Facebook Page Post Attachment</b> Executed Successfully on 📅 "
-            h_function.send_gg_chat_noti(msg)
+    post_id_list = FB_Connector.get_post_id_list_for_attachment(client,pages[0]['id'])
+    rows = FB_Connector.get_page_post_attachement(pages,post_id_list)
+    df = pd.DataFrame(rows)
+    if len(df) > 0:
+        BQ_Connector.delete_data(client,"rda_analytics_temp","media_facebook_page_post_attachment_temp")
+        BQ_Connector.load_data(client,"rda_analytics_temp","media_facebook_page_post_attachment_temp",df)
+        BQ_Connector.delete_when_match(client,"rda_analytics","media_facebook_page_post_attachment","rda_analytics_temp","media_facebook_page_post_attachment_temp",
+                                    "ON ori.page_id = temp.page_id AND ori.post_id = temp.post_id ")
+        BQ_Connector.load_data(client, "rda_analytics","media_facebook_page_post_attachment",df)
+        msg = f"🔷🔖 Content: <b>Facebook Page Post Attachment</b> Executed Successfully on 📅 "
+        h_function.send_gg_chat_noti(msg)
+        
     return json.dumps({'success': "Update FB Page Post Attachment Succesfully"}), 200
 
 

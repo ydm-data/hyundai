@@ -411,7 +411,7 @@ class FB_Connector:
         pages = me.get_accounts(fields=fields, params=params)
         return pages
     
-    def get_page_insight(pages, metric):
+    def get_page_insight(pages, metric, days):
         rows = []
         for page in pages:
             page_id = page['id']
@@ -424,7 +424,7 @@ class FB_Connector:
                 params = {
                     'metric': metric,
                     'period': 'day',
-                    'since': (datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d'),
+                    'since': (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d'),
                     'until': datetime.now().strftime("%Y-%m-%d")
                 }
                 insights = page_obj.get_insights(params=params)
@@ -441,7 +441,7 @@ class FB_Connector:
                         })         
         return rows
     
-    def get_fb_pagepost(pages):
+    def get_fb_pagepost(pages,days):
         rows = []
         batch_size = 3  # Reduce batch size to 3 pages per batch
         delay_between_batches = 10  # Increase delay between batches to 10 seconds
@@ -466,7 +466,7 @@ class FB_Connector:
                             fields=fields, 
                             params={
                                 'limit': 10,  # Limit to 10 posts per request
-                                'since': (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d')
+                                'since': (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d')
                             }
                         )  # Limit to 10 posts per request
                         
@@ -736,10 +736,11 @@ class FB_Connector:
     def get_page_post_attachement(pages,post_id_list):
         rows = []
         delay_on_error = 60 
-
+        print(pages)
         for page in pages:
             page_id = page['id']
             page_name = page['name']
+            print(page_name)
             if page_name == "Hyundai Thailand":
                 page_access_token = page.get('access_token')
                 print(f"Processing {page_name}", end=", ")
